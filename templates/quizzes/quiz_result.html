@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Results: {{ quiz.title }} | PyMaster{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    
+    <!-- Top Result Hero Banner with Circular Progress Gauge -->
+    <div class="p-8 sm:p-12 rounded-3xl bg-slate-800/90 border border-slate-700/80 shadow-2xl text-center relative overflow-hidden space-y-6">
+        
+        <!-- Status Pill -->
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider
+            {% if attempt.passed %} bg-emerald-500/20 text-emerald-300 border border-emerald-500/30
+            {% else %} bg-rose-500/20 text-rose-300 border border-rose-500/30 {% endif %}">
+            <i class="fa-solid {% if attempt.passed %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+            <span>{% if attempt.passed %}🎉 Quiz Passed - Excellent Work!{% else %}Needs Practice - Keep Learning!{% endif %}</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl font-black text-white">{{ quiz.title }}</h1>
+        <p class="text-xs text-slate-400">Completed on {{ attempt.completed_at|date:"F d, Y - H:i" }}</p>
+
+        <!-- Circular SVG Score Indicator & Big Grade -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-8 py-4">
+            <!-- Circular Gauge -->
+            <div class="relative w-40 h-40 flex items-center justify-center">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                    <!-- Background circle -->
+                    <circle cx="50" cy="50" r="42" stroke="currentColor" stroke-width="8" class="text-slate-900" fill="transparent" />
+                    <!-- Progress circle -->
+                    <circle cx="50" cy="50" r="42" stroke="currentColor" stroke-width="8" 
+                            class="{% if attempt.passed %}text-emerald-500{% else %}text-rose-500{% endif %} transition-all duration-1000 ease-out" 
+                            stroke-linecap="round"
+                            stroke-dasharray="264" 
+                            stroke-dashoffset="{{ 264|add:'-2.64'|floatformat:0 }}"
+                            style="stroke-dashoffset: calc(264 - (264 * {{ attempt.percentage }}) / 100);"
+                            fill="transparent" />
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                    <span class="text-3xl font-black text-white">{{ attempt.percentage }}%</span>
+                    <span class="text-[11px] font-mono text-slate-400">Overall Score</span>
+                </div>
+            </div>
+
+            <!-- Grade Callout -->
+            <div class="text-center sm:text-left space-y-1">
+                <span class="text-xs font-mono uppercase text-slate-400 block">Performance Grade</span>
+                <div class="text-5xl font-black {% if attempt.passed %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                    {{ attempt.grade }}
+                </div>
+                <p class="text-xs text-slate-300">
+                    {% if attempt.percentage >= 90 %}Mastery achieved! Outstanding Python knowledge!
+                    {% elif attempt.percentage >= 70 %}Great job! You passed the assessment threshold.
+                    {% else %}Review the answers below to strengthen your understanding.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Metric Cards Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-700/80">
+            <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800">
+                <span class="text-[10px] text-slate-400 font-mono uppercase block">Total Score</span>
+                <strong class="text-xl font-bold text-white">{{ attempt.score }} / {{ attempt.total_marks }}</strong>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800">
+                <span class="text-[10px] text-emerald-400 font-mono uppercase block">Correct</span>
+                <strong class="text-xl font-bold text-emerald-400">
+                    {{ reviewed_answers|length }} Questions
+                </strong>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800">
+                <span class="text-[10px] text-indigo-400 font-mono uppercase block">Time Taken</span>
+                <strong class="text-xl font-bold text-indigo-400">{{ time_taken_str }}</strong>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800">
+                <span class="text-[10px] text-amber-400 font-mono uppercase block">Pass Mark</span>
+                <strong class="text-xl font-bold text-amber-400">{{ quiz.pass_percentage }}%</strong>
+            </div>
+        </div>
+
+        <!-- Action CTAs -->
+        <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <a href="{% url 'quiz_take' slug=quiz.slug %}" 
+               class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
+                <i class="fa-solid fa-rotate-right text-xs"></i>
+                <span>Retake Quiz</span>
+            </a>
+            <a href="{% url 'quiz_generate' %}" 
+               class="px-5 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs transition flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-xs"></i>
+                <span>Generate New Quiz</span>
+            </a>
+            <a href="{% url 'quiz_dashboard' %}" 
+               class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold text-xs border border-slate-700 transition flex items-center gap-2">
+                <i class="fa-solid fa-chart-line text-xs text-emerald-400"></i>
+                <span>View Dashboard</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Question-by-Question Review Section -->
+    <div class="space-y-6">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-clipboard-check text-indigo-400"></i>
+                <span>Detailed Question Review & Explanations</span>
+            </h2>
+            <span class="text-xs text-slate-400 font-mono">{{ reviewed_answers|length }} Questions Evaluated</span>
+        </div>
+
+        {% for item in reviewed_answers %}
+        <div class="p-6 rounded-3xl bg-slate-800/80 border {% if item.answer.is_correct %}border-emerald-500/40{% elif item.answer.is_skipped %}border-amber-500/40{% else %}border-rose-500/40{% endif %} shadow-xl space-y-4">
+            
+            <!-- Question Review Header -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/60 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono font-bold text-slate-300">Question {{ forloop.counter }}</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-900 text-indigo-300 border border-slate-700">
+                        {{ item.question.get_question_type_display }}
+                    </span>
+                </div>
+
+                <!-- Status Badge -->
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold font-mono
+                    {% if item.answer.is_correct %} bg-emerald-500/20 text-emerald-400 border border-emerald-500/30
+                    {% elif item.answer.is_skipped %} bg-amber-500/20 text-amber-400 border border-amber-500/30
+                    {% else %} bg-rose-500/20 text-rose-400 border border-rose-500/30 {% endif %}">
+                    {% if item.answer.is_correct %}
+                        <i class="fa-solid fa-check mr-1"></i> CORRECT (+{{ item.answer.marks_earned }} marks)
+                    {% elif item.answer.is_skipped %}
+                        <i class="fa-solid fa-forward mr-1"></i> SKIPPED (0 marks)
+                    {% else %}
+                        <i class="fa-solid fa-xmark mr-1"></i> INCORRECT (0 marks)
+                    {% endif %}
+                </span>
+            </div>
+
+            <!-- Question Statement -->
+            <div class="text-base font-bold text-white">
+                {{ item.question.question_text }}
+            </div>
+
+            <!-- Code Snippet if present -->
+            {% if item.question.code_snippet %}
+            <pre class="p-3.5 rounded-xl bg-slate-950 font-mono text-xs text-slate-200 border border-slate-800 overflow-x-auto leading-relaxed">{{ item.question.code_snippet }}</pre>
+            {% endif %}
+
+            <!-- User Answer vs Correct Answer Comparison -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono pt-1">
+                <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                    <span class="text-slate-400 block font-sans font-semibold">Your Answer:</span>
+                    <div class="{% if item.answer.is_correct %}text-emerald-400{% elif item.answer.is_skipped %}text-amber-400{% else %}text-rose-400{% endif %} font-bold whitespace-pre-wrap leading-relaxed">
+                        {{ item.user_display }}
+                    </div>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                    <span class="text-slate-400 block font-sans font-semibold">Correct Answer:</span>
+                    <div class="text-emerald-400 font-bold whitespace-pre-wrap leading-relaxed">
+                        {{ item.correct_display }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- In-Depth Explanation Box -->
+            {% if item.explanation %}
+            <div class="p-4 rounded-2xl bg-indigo-950/30 border border-indigo-500/30 text-xs text-slate-300 space-y-1.5 leading-relaxed">
+                <strong class="text-indigo-400 font-bold flex items-center gap-1.5">
+                    <i class="fa-solid fa-lightbulb"></i> Concept & Answer Explanation:
+                </strong>
+                <p>{{ item.explanation }}</p>
+            </div>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

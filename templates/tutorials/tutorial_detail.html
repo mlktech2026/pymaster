@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ tutorial.title }} - Python Tutorial | PyMaster{% endblock %}
+{% block meta_description %}{{ tutorial.summary }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left Sidebar: Complete Course Structure -->
+        <aside class="lg:col-span-3 lg:sticky lg:top-24 max-h-[85vh] overflow-y-auto rounded-2xl bg-slate-800/80 border border-slate-700/80 p-4 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-700">
+                <span class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-brand-400"></i> Course Syllabus
+                </span>
+                <span class="text-[11px] text-slate-400 font-mono">{{ all_categories.count }} Modules</span>
+            </div>
+
+            <!-- Categories Tree -->
+            <div class="space-y-4 text-xs">
+                {% for cat in all_categories %}
+                <div>
+                    <h4 class="font-bold text-slate-200 uppercase tracking-wide text-[11px] mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid {{ cat.icon }} text-brand-400 text-[10px]"></i>
+                        <span>{{ cat.name }}</span>
+                    </h4>
+                    <ul class="space-y-1 pl-2 border-l border-slate-700/80">
+                        {% for tut in cat.tutorials.all %}
+                        <li>
+                            <a href="{% url 'tutorial_seo_detail' slug=tut.slug %}" 
+                               class="flex items-center justify-between py-1.5 px-2 rounded-lg transition
+                               {% if tut.id == tutorial.id %} bg-brand-600 text-white font-semibold shadow-md
+                               {% else %} text-slate-400 hover:text-white hover:bg-slate-700/50 {% endif %}">
+                                <span class="truncate pr-2">{{ tut.title }}</span>
+                                {% if tut.id in completed_ids %}
+                                    <i class="fa-solid fa-check text-emerald-400 text-[11px]"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <!-- Main Lesson Content -->
+        <article class="lg:col-span-9 space-y-8">
+            
+            <!-- Lesson Header & Actions -->
+            <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-2">
+                        <span class="px-2 py-0.5 rounded bg-brand-500/10 text-brand-400 border border-brand-500/20 uppercase tracking-wide">
+                            {{ tutorial.category.name }}
+                        </span>
+                        <span>•</span>
+                        <span><i class="fa-regular fa-clock mr-1"></i>{{ tutorial.estimated_read_time }} min read</span>
+                    </div>
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight">{{ tutorial.title }}</h1>
+                    <p class="text-sm text-slate-300 mt-2">{{ tutorial.summary }}</p>
+                </div>
+
+                <!-- Mark Complete Button -->
+                <div class="flex-shrink-0">
+                    {% if user.is_authenticated %}
+                    <button id="mark-complete-btn" 
+                            data-slug="{{ tutorial.slug }}"
+                            class="px-4 py-2.5 rounded-xl font-semibold text-xs transition flex items-center gap-2 shadow-lg
+                            {% if is_completed %} bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-600/30
+                            {% else %} bg-emerald-600 hover:bg-emerald-500 text-white {% endif %}">
+                        <i class="fa-solid {% if is_completed %}fa-circle-check text-emerald-400{% else %}fa-check{% endif %}"></i>
+                        <span id="mark-complete-text">{% if is_completed %}Completed ✓{% else %}Mark Complete (+20 XP){% endif %}</span>
+                    </button>
+                    {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="px-4 py-2.5 rounded-xl bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition">
+                        Log in to track progress
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 1. Simple Explanation -->
+            <div class="p-6 rounded-2xl bg-slate-800/60 border border-slate-700/80 space-y-4">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                    <span>Concept Explanation</span>
+                </h2>
+                <div class="text-slate-300 text-sm leading-relaxed prose prose-invert max-w-none">
+                    {{ tutorial.content|linebreaks }}
+                </div>
+            </div>
+
+            <!-- 2. Syntax Box -->
+            {% if tutorial.syntax %}
+            <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-terminal text-brand-400"></i> Syntax Reference
+                </h3>
+                <pre class="bg-slate-950 p-4 rounded-xl font-mono text-xs text-brand-300 border border-slate-800 overflow-x-auto">{{ tutorial.syntax }}</pre>
+            </div>
+            {% endif %}
+
+            <!-- 3. Primary Code Example & Output -->
+            {% if tutorial.code_example %}
+            <div class="space-y-4">
+                <div class="terminal-window">
+                    <div class="flex items-center justify-between px-4 py-2.5 bg-slate-800 border-b border-slate-700 text-xs">
+                        <span class="font-mono text-slate-300"><i class="fa-brands fa-python text-brand-400 mr-2"></i>Example Code</span>
+                        <button onclick="copyToClipboard(`{{ tutorial.code_example|escapejs }}`, this)" 
+                                class="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 transition">
+                            <i class="fa-regular fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <pre class="p-4 bg-slate-950 font-mono text-xs sm:text-sm text-slate-200 overflow-x-auto">{{ tutorial.code_example }}</pre>
+                    {% if tutorial.expected_output %}
+                    <div class="px-4 py-3 bg-slate-900 border-t border-slate-800">
+                        <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5 font-mono">Output:</p>
+                        <pre class="font-mono text-xs text-emerald-400 bg-slate-950/80 p-2.5 rounded-lg border border-slate-800/80 overflow-x-auto">{{ tutorial.expected_output }}</pre>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 4. Important Notes & Common Mistakes Callouts -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% if tutorial.important_notes %}
+                <div class="p-5 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-slate-200">
+                    <h3 class="text-sm font-bold text-blue-400 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-exclamation"></i> Important Notes
+                    </h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">{{ tutorial.important_notes }}</p>
+                </div>
+                {% endif %}
+
+                {% if tutorial.common_mistakes %}
+                <div class="p-5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-slate-200">
+                    <h3 class="text-sm font-bold text-rose-400 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Common Pitfalls to Avoid
+                    </h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">{{ tutorial.common_mistakes }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- 5. Real-World Practical Example -->
+            {% if tutorial.real_world_example %}
+            <div class="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+                <h3 class="text-sm font-bold text-emerald-400 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-briefcase"></i> Real-World Application
+                </h3>
+                <p class="text-xs text-slate-300 leading-relaxed">{{ tutorial.real_world_example }}</p>
+            </div>
+            {% endif %}
+
+            <!-- 6. "Try It Yourself" Embedded Interactive Code Editor -->
+            <div class="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-2xl">
+                <div class="flex items-center justify-between px-5 py-3.5 bg-slate-800/90 border-b border-slate-700">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                        <h3 class="text-sm font-bold text-white">Try It Yourself - Interactive Editor</h3>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="reset-try-btn" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-700 transition">
+                            <i class="fa-solid fa-arrow-rotate-left mr-1"></i> Reset
+                        </button>
+                        <button id="run-try-btn" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-play text-[10px]"></i>
+                            <span>Run Code</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CodeMirror Container -->
+                <div class="p-3 bg-slate-950">
+                    <textarea id="try-editor-textarea">{{ tutorial.practice_code|default:tutorial.code_example }}</textarea>
+                </div>
+
+                <!-- Console Output Console -->
+                <div class="border-t border-slate-800 bg-slate-900/90 p-4">
+                    <div class="flex items-center justify-between text-xs text-slate-400 mb-2 font-mono">
+                        <span>Console Output:</span>
+                        <span id="try-exec-time" class="text-[11px] text-slate-500"></span>
+                    </div>
+                    <pre id="try-output" class="p-3 rounded-xl bg-slate-950 font-mono text-xs min-h-[60px] text-slate-300 border border-slate-800/80 overflow-x-auto">Click 'Run Code' to see execution results here...</pre>
+                </div>
+            </div>
+
+            <!-- Navigation Controls: Previous / Next Lesson -->
+            <div class="flex items-center justify-between pt-6 border-t border-slate-800">
+                {% if prev_tutorial %}
+                <a href="{% url 'tutorial_seo_detail' slug=prev_tutorial.slug %}" 
+                   class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold text-xs border border-slate-700 transition flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left text-[11px]"></i>
+                    <span class="truncate max-w-[150px] sm:max-w-xs">{{ prev_tutorial.title }}</span>
+                </a>
+                {% else %}
+                <div></div>
+                {% endif %}
+
+                {% if next_tutorial %}
+                <a href="{% url 'tutorial_seo_detail' slug=next_tutorial.slug %}" 
+                   class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs shadow-lg shadow-brand-500/20 transition flex items-center gap-2">
+                    <span class="truncate max-w-[150px] sm:max-w-xs">{{ next_tutorial.title }}</span>
+                    <i class="fa-solid fa-arrow-right text-[11px]"></i>
+                </a>
+                {% endif %}
+            </div>
+
+        </article>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Initialize CodeMirror for Try-It-Yourself
+    const textarea = document.getElementById('try-editor-textarea');
+    const editor = CodeMirror.fromTextArea(textarea, {
+        mode: 'python',
+        theme: 'dracula',
+        lineNumbers: true,
+        matchBrackets: true,
+        autoCloseBrackets: true,
+        indentUnit: 4,
+        tabSize: 4,
+        indentWithTabs: false,
+    });
+    editor.setSize('100%', 220);
+
+    const initialCode = editor.getValue();
+    const runBtn = document.getElementById('run-try-btn');
+    const resetBtn = document.getElementById('reset-try-btn');
+    const outputEl = document.getElementById('try-output');
+    const execTimeEl = document.getElementById('try-exec-time');
+
+    resetBtn.addEventListener('click', () => {
+        editor.setValue(initialCode);
+        outputEl.innerText = "Code reset to original template.";
+        outputEl.className = "p-3 rounded-xl bg-slate-950 font-mono text-xs min-h-[60px] text-slate-400 border border-slate-800/80";
+        execTimeEl.innerText = "";
+    });
+
+    runBtn.addEventListener('click', async () => {
+        const code = editor.getValue();
+        runBtn.disabled = true;
+        runBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[10px]"></i> Running...';
+        outputEl.innerText = "Executing in isolated sandbox...";
+
+        try {
+            const resp = await fetch('/practice/run/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ code: code, stdin: '' })
+            });
+            const data = await resp.json();
+
+            if (data.status === 'success') {
+                outputEl.innerText = data.stdout || '(Program executed successfully with no output)';
+                outputEl.className = "p-3 rounded-xl bg-slate-950 font-mono text-xs min-h-[60px] text-emerald-400 border border-slate-800/80 overflow-x-auto";
+            } else if (data.status === 'timeout') {
+                outputEl.innerText = data.stderr || 'Execution timed out.';
+                outputEl.className = "p-3 rounded-xl bg-slate-950 font-mono text-xs min-h-[60px] text-amber-400 border border-slate-800/80 overflow-x-auto";
+            } else {
+                outputEl.innerText = (data.stderr || data.stdout || 'Execution error');
+                outputEl.className = "p-3 rounded-xl bg-slate-950 font-mono text-xs min-h-[60px] text-rose-400 border border-slate-800/80 overflow-x-auto";
+            }
+
+            execTimeEl.innerText = `${data.execution_time}s`;
+        } catch (err) {
+            outputEl.innerText = "Network error: Unable to connect to execution server.";
+            outputEl.className = "p-3 rounded-xl bg-slate-950 font-mono text-xs min-h-[60px] text-rose-400 border border-slate-800/80";
+        } finally {
+            runBtn.disabled = false;
+            runBtn.innerHTML = '<i class="fa-solid fa-play text-[10px]"></i> Run Code';
+        }
+    });
+
+    // 2. Mark as Complete AJAX button
+    const markBtn = document.getElementById('mark-complete-btn');
+    if (markBtn) {
+        markBtn.addEventListener('click', async () => {
+            const slug = markBtn.dataset.slug;
+            try {
+                const resp = await fetch(`/tutorials/${slug}/complete/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    if (data.completed) {
+                        markBtn.className = "px-4 py-2.5 rounded-xl font-semibold text-xs transition flex items-center gap-2 shadow-lg bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-600/30";
+                        document.getElementById('mark-complete-text').innerText = "Completed ✓";
+                        showToast(data.message || '+20 XP awarded!', 'success');
+                        if (data.new_badges && data.new_badges.length > 0) {
+                            showToast(`🏆 Badge Unlocked: ${data.new_badges.join(', ')}`, 'success');
+                        }
+                    } else {
+                        markBtn.className = "px-4 py-2.5 rounded-xl font-semibold text-xs transition flex items-center gap-2 shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white";
+                        document.getElementById('mark-complete-text').innerText = "Mark Complete (+20 XP)";
+                        showToast("Lesson marked as incomplete", 'info');
+                    }
+                }
+            } catch (err) {
+                showToast("Failed to update status", 'error');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

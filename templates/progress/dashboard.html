@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | PyMaster{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    
+    <!-- User Welcome & Streak Bar -->
+    <div class="p-8 rounded-3xl bg-slate-800/80 border border-slate-700/80 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-brand-400">Personalized Learning Hub</span>
+            </div>
+            <h1 class="text-3xl font-extrabold text-white">Welcome back, {{ user.username }}! 👋</h1>
+            <p class="text-xs text-slate-400 mt-1">Keep up your momentum and solve a challenge today.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-4">
+            <!-- Streak Card -->
+            <div class="px-5 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-fire animate-pulse"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] text-amber-300 font-mono uppercase block">Active Streak</span>
+                    <strong class="text-lg font-black text-amber-400">{{ current_streak }} Day{{ current_streak|pluralize }}</strong>
+                </div>
+            </div>
+
+            <!-- XP Card -->
+            <div class="px-5 py-3 rounded-2xl bg-brand-500/10 border border-brand-500/30 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-star"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] text-brand-300 font-mono uppercase block">Total Points</span>
+                    <strong class="text-lg font-black text-brand-400">{{ total_xp }} XP</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overall Learning Progress Bar & Continue Learning Quick Card -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Overall Course Progress Card -->
+        <div class="lg:col-span-7 p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-bold text-white">Python Course Progress</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">{{ completed_tutorials }} of {{ total_tutorials }} tutorials completed</p>
+                </div>
+                <span class="text-2xl font-black text-emerald-400">{{ course_progress_pct }}%</span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full h-3 rounded-full bg-slate-900 border border-slate-700/80 overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-brand-500 to-emerald-400 rounded-full transition-all duration-500"
+                     style="width: {{ course_progress_pct }}%"></div>
+            </div>
+
+            <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono pt-1">
+                <span>0% Beginner</span>
+                <span>50% Intermediate</span>
+                <span>100% Advanced Master</span>
+            </div>
+        </div>
+
+        <!-- Continue Learning Resume Card -->
+        <div class="lg:col-span-5 p-6 rounded-2xl bg-gradient-to-br from-brand-900/40 via-slate-800/80 to-slate-800/80 border border-brand-500/30 flex flex-col justify-between">
+            <div>
+                <span class="text-[10px] uppercase font-bold text-brand-400 tracking-wider block mb-1">
+                    <i class="fa-solid fa-bookmark mr-1"></i> Pick Up Where You Left Off
+                </span>
+                {% if last_tutorial %}
+                <h3 class="text-lg font-bold text-white mt-1">{{ last_tutorial.title }}</h3>
+                <p class="text-xs text-slate-300 mt-1 line-clamp-2">{{ last_tutorial.summary }}</p>
+                {% else %}
+                <h3 class="text-lg font-bold text-white mt-1">Introduction to Python</h3>
+                <p class="text-xs text-slate-300 mt-1">Start your journey with Python basics!</p>
+                {% endif %}
+            </div>
+
+            <div class="pt-4">
+                {% if last_tutorial %}
+                <a href="{% url 'tutorial_seo_detail' slug=last_tutorial.slug %}" 
+                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs shadow-lg shadow-brand-500/20 transition">
+                    <span>Continue: {{ last_tutorial.title }}</span>
+                    <i class="fa-solid fa-arrow-right text-[11px]"></i>
+                </a>
+                {% else %}
+                <a href="{% url 'tutorial_seo_detail' slug='introduction-to-python' %}" 
+                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs shadow-lg shadow-brand-500/20 transition">
+                    <span>Start First Lesson</span>
+                    <i class="fa-solid fa-arrow-right text-[11px]"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 6 Statistics Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-center">
+            <i class="fa-solid fa-book-open text-brand-400 text-xl mb-2"></i>
+            <span class="text-[11px] text-slate-400 block">Lessons Done</span>
+            <strong class="text-xl font-bold text-white">{{ completed_tutorials }}</strong>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-center">
+            <i class="fa-solid fa-code text-amber-400 text-xl mb-2"></i>
+            <span class="text-[11px] text-slate-400 block">Exercises Solved</span>
+            <strong class="text-xl font-bold text-white">{{ solved_exercises_count }}</strong>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-center">
+            <i class="fa-solid fa-circle-question text-indigo-400 text-xl mb-2"></i>
+            <span class="text-[11px] text-slate-400 block">Quizzes Taken</span>
+            <strong class="text-xl font-bold text-white">{{ quizzes_completed }}</strong>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-center">
+            <i class="fa-solid fa-chart-simple text-emerald-400 text-xl mb-2"></i>
+            <span class="text-[11px] text-slate-400 block">Avg Quiz Score</span>
+            <strong class="text-xl font-bold text-white">{{ avg_quiz_score }}%</strong>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-center">
+            <i class="fa-solid fa-bolt text-rose-400 text-xl mb-2"></i>
+            <span class="text-[11px] text-slate-400 block">Best Streak</span>
+            <strong class="text-xl font-bold text-white">{{ longest_streak }}d</strong>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-center">
+            <i class="fa-regular fa-clock text-purple-400 text-xl mb-2"></i>
+            <span class="text-[11px] text-slate-400 block">Learning Time</span>
+            <strong class="text-xl font-bold text-white">{{ total_learning_time_str }}</strong>
+        </div>
+    </div>
+
+    <!-- Gamification: Earned & Locked Badges Showcase -->
+    <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-trophy text-amber-400"></i>
+                <span>Achievement Badges ({{ user_badges.count }} / {{ all_badges.count }})</span>
+            </h2>
+            <a href="{% url 'profile' %}" class="text-xs text-brand-400 hover:text-brand-300 font-semibold">
+                Manage Profile
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-4">
+            {% for badge in all_badges %}
+            <div class="p-3.5 rounded-xl border text-center flex flex-col items-center justify-between transition hover-lift
+                {% if badge.id in earned_badge_ids %} bg-slate-900 border-amber-500/40 badge-glow
+                {% else %} bg-slate-900/40 border-slate-800 opacity-50 grayscale {% endif %}">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2
+                    {% if badge.id in earned_badge_ids %} bg-amber-500/20 text-amber-400
+                    {% else %} bg-slate-800 text-slate-500 {% endif %}">
+                    <i class="fa-solid {{ badge.icon }}"></i>
+                </div>
+                <h4 class="text-[11px] font-bold text-slate-200 line-clamp-1">{{ badge.name }}</h4>
+                <span class="text-[10px] mt-1 {% if badge.id in earned_badge_ids %}text-emerald-400 font-semibold{% else %}text-slate-500{% endif %}">
+                    {% if badge.id in earned_badge_ids %}Unlocked ✓{% else %}Locked 🔒{% endif %}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Activity Grids -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Recent Exercise Submissions -->
+        <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-3">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-code text-brand-400"></i>
+                <span>Recent Exercise Activity</span>
+            </h3>
+
+            {% if recent_submissions %}
+            <div class="space-y-2 text-xs">
+                {% for sub in recent_submissions %}
+                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800">
+                    <div>
+                        <a href="{% url 'exercise_detail' slug=sub.exercise.slug %}" class="font-bold text-slate-200 hover:text-brand-300 transition">
+                            {{ sub.exercise.title }}
+                        </a>
+                        <span class="block text-[10px] text-slate-400 mt-0.5">{{ sub.created_at|timesince }} ago</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold
+                        {% if sub.passed %} bg-emerald-500/20 text-emerald-400 {% else %} bg-rose-500/20 text-rose-400 {% endif %}">
+                        {% if sub.passed %}PASSED ✓{% else %}FAILED ✗{% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-xs text-slate-500 py-4 text-center">No exercises submitted yet. <a href="{% url 'exercise_list' %}" class="text-brand-400 underline">Try an exercise!</a></p>
+            {% endif %}
+        </div>
+
+        <!-- Recent Quiz Attempts -->
+        <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-3">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-circle-question text-indigo-400"></i>
+                <span>Recent Quiz Attempts</span>
+            </h3>
+
+            {% if recent_quizzes %}
+            <div class="space-y-2 text-xs">
+                {% for att in recent_quizzes %}
+                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800">
+                    <div>
+                        <a href="{% url 'quiz_result' slug=att.quiz.slug attempt_id=att.id %}" class="font-bold text-slate-200 hover:text-indigo-300 transition">
+                            {{ att.quiz.title }}
+                        </a>
+                        <span class="block text-[10px] text-slate-400 mt-0.5">{{ att.completed_at|timesince }} ago</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-bold {% if att.passed %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                            {{ att.percentage }}% ({{ att.grade }})
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-xs text-slate-500 py-4 text-center">No quizzes taken yet. <a href="{% url 'quiz_list' %}" class="text-indigo-400 underline">Take a quiz!</a></p>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

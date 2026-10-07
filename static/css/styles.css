@@ -1,0 +1,72 @@
+/* Custom Styles & Utilities for PyMaster */
+
+:root {
+    --color-primary: #3b82f6;
+    --color-primary-hover: #2563eb;
+    --editor-bg: #1e1e2e;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.6);
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* CodeMirror customizations */
+.CodeMirror {
+    height: 100% !important;
+    min-height: 280px;
+    font-family: var(--font-mono) !important;
+    font-size: 14px;
+    line-height: 1.6;
+    border-radius: 0.5rem;
+}
+
+/* Glow effects */
+.badge-glow {
+    box-shadow: 0 0 15px rgba(234, 179, 8, 0.25);
+}
+
+.terminal-window {
+    background-color: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+}
+
+/* Card hover animation */
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Flash animation for new badges */
+@keyframes badgePop {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.badge-pop {
+    animation: badgePop 0.4s ease-out forwards;
+}

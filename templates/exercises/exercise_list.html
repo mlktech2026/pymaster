@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Python Exercises - Practice Coding | PyMaster{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+            <span class="px-3.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-semibold uppercase tracking-wider">
+                Hands-on Practice
+            </span>
+            <h1 class="text-3xl font-extrabold text-white mt-2">Python Coding Exercises</h1>
+            <p class="text-slate-400 text-sm mt-1">
+                Solve algorithmic and real-world Python challenges with instant automated test evaluations.
+            </p>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="px-4 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs flex items-center gap-3">
+            <span class="text-slate-400">Solved: <strong class="text-emerald-400">{{ solved_count }}</strong> / {{ total_count }}</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
+            <span class="text-amber-400 font-semibold"><i class="fa-solid fa-bolt mr-1"></i>Earn XP per exercise</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Filter Bar: Difficulty & Category -->
+    <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{% url 'exercise_list' %}" 
+               class="px-3 py-1.5 rounded-lg text-xs font-semibold transition
+               {% if not selected_difficulty %} bg-brand-600 text-white {% else %} bg-slate-900 text-slate-300 hover:text-white {% endif %}">
+                All Difficulties
+            </a>
+            <a href="{% url 'exercise_list' %}?difficulty=easy{% if selected_category %}&category={{ selected_category }}{% endif %}" 
+               class="px-3 py-1.5 rounded-lg text-xs font-semibold transition
+               {% if selected_difficulty == 'easy' %} bg-emerald-600 text-white {% else %} bg-slate-900 text-emerald-400 hover:bg-slate-700 {% endif %}">
+                Easy
+            </a>
+            <a href="{% url 'exercise_list' %}?difficulty=medium{% if selected_category %}&category={{ selected_category }}{% endif %}" 
+               class="px-3 py-1.5 rounded-lg text-xs font-semibold transition
+               {% if selected_difficulty == 'medium' %} bg-amber-600 text-white {% else %} bg-slate-900 text-amber-400 hover:bg-slate-700 {% endif %}">
+                Medium
+            </a>
+            <a href="{% url 'exercise_list' %}?difficulty=hard{% if selected_category %}&category={{ selected_category }}{% endif %}" 
+               class="px-3 py-1.5 rounded-lg text-xs font-semibold transition
+               {% if selected_difficulty == 'hard' %} bg-rose-600 text-white {% else %} bg-slate-900 text-rose-400 hover:bg-slate-700 {% endif %}">
+                Hard
+            </a>
+        </div>
+
+        <!-- Search Bar -->
+        <form method="GET" class="relative w-full sm:w-64">
+            {% if selected_difficulty %}<input type="hidden" name="difficulty" value="{{ selected_difficulty }}">{% endif %}
+            <input type="text" name="q" placeholder="Filter exercises..." value="{{ search_query }}"
+                   class="w-full pl-9 pr-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+        </form>
+    </div>
+
+    <!-- Exercises Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for ex in exercises %}
+        <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 hover:border-slate-600 transition hover-lift flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase
+                        {% if ex.difficulty == 'easy' %} bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                        {% elif ex.difficulty == 'medium' %} bg-amber-500/10 text-amber-400 border border-amber-500/20
+                        {% else %} bg-rose-500/10 text-rose-400 border border-rose-500/20 {% endif %}">
+                        {{ ex.get_difficulty_display }}
+                    </span>
+                    
+                    <div class="flex items-center gap-2">
+                        {% if ex.id in solved_ids %}
+                        <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-circle-check"></i> Solved
+                        </span>
+                        {% endif %}
+                        <span class="text-xs text-amber-400 font-bold">+{{ ex.points }} XP</span>
+                    </div>
+                </div>
+
+                <h3 class="text-lg font-bold text-white mb-2">{{ ex.title }}</h3>
+                <p class="text-xs text-slate-400 line-clamp-3 mb-4 leading-relaxed">{{ ex.description }}</p>
+            </div>
+
+            <div class="pt-4 border-t border-slate-700/80 flex items-center justify-between">
+                <span class="text-xs text-slate-400 font-mono">{{ ex.category.name }}</span>
+                <a href="{% url 'exercise_detail' slug=ex.slug %}" 
+                   class="px-3.5 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs shadow-md transition flex items-center gap-1.5">
+                    <span>Solve Challenge</span>
+                    <i class="fa-solid fa-code text-[11px]"></i>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-3 text-center py-16 bg-slate-800/40 rounded-2xl border border-slate-800">
+            <i class="fa-solid fa-code text-4xl text-slate-600 mb-3"></i>
+            <h3 class="text-lg font-bold text-white">No exercises found</h3>
+            <p class="text-xs text-slate-400 mt-1">Try resetting the difficulty or search filters.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Real-world Python Projects | PyMaster{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+        <span class="px-3.5 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs font-semibold uppercase tracking-wider">
+            Portfolio Building
+        </span>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-white mt-3">Real-world Python Projects</h1>
+        <p class="text-slate-400 text-sm mt-2">
+            Build production-grade applications from scratch with step-by-step architecture guides, complete source code, and extension challenges.
+        </p>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="flex flex-wrap items-center justify-center gap-2 mb-10">
+        <a href="{% url 'project_list' %}" 
+           class="px-4 py-2 rounded-xl text-xs font-semibold transition
+           {% if not selected_level %} bg-brand-600 text-white shadow-md {% else %} bg-slate-800 text-slate-300 hover:text-white {% endif %}">
+            All Projects
+        </a>
+        <a href="{% url 'project_list' %}?level=beginner" 
+           class="px-4 py-2 rounded-xl text-xs font-semibold transition
+           {% if selected_level == 'beginner' %} bg-emerald-600 text-white shadow-md {% else %} bg-slate-800 text-emerald-400 hover:bg-slate-700 {% endif %}">
+            Beginner Projects
+        </a>
+        <a href="{% url 'project_list' %}?level=intermediate" 
+           class="px-4 py-2 rounded-xl text-xs font-semibold transition
+           {% if selected_level == 'intermediate' %} bg-blue-600 text-white shadow-md {% else %} bg-slate-800 text-blue-400 hover:bg-slate-700 {% endif %}">
+            Intermediate Projects
+        </a>
+        <a href="{% url 'project_list' %}?level=advanced" 
+           class="px-4 py-2 rounded-xl text-xs font-semibold transition
+           {% if selected_level == 'advanced' %} bg-purple-600 text-white shadow-md {% else %} bg-slate-800 text-purple-400 hover:bg-slate-700 {% endif %}">
+            Advanced Projects
+        </a>
+    </div>
+
+    <!-- Projects Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for proj in projects %}
+        <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 hover:border-slate-600 transition hover-lift flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase
+                        {% if proj.level == 'beginner' %} bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                        {% elif proj.level == 'intermediate' %} bg-blue-500/10 text-blue-400 border border-blue-500/20
+                        {% else %} bg-purple-500/10 text-purple-400 border border-purple-500/20 {% endif %}">
+                        {{ proj.get_level_display }}
+                    </span>
+                    <span class="text-xs text-slate-400 font-mono">Project #{{ proj.order }}</span>
+                </div>
+
+                <h3 class="text-xl font-bold text-white mb-2">{{ proj.title }}</h3>
+                <p class="text-xs text-slate-400 line-clamp-3 mb-4 leading-relaxed">{{ proj.description }}</p>
+
+                <!-- Concepts Tags -->
+                <div class="flex flex-wrap gap-1.5 mb-6">
+                    {% for c in proj.concepts_list %}
+                    <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700/80 text-[10px] font-mono text-slate-300">
+                        {{ c }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-700/80">
+                <a href="{% url 'project_detail' slug=proj.slug %}" 
+                   class="w-full text-center block py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold transition">
+                    View Project Guide & Source Code <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

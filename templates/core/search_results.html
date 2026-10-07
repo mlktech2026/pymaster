@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Results for "{{ query }}" | PyMaster{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-8">
+        <h1 class="text-3xl font-extrabold text-white">Search Results</h1>
+        <p class="text-sm text-slate-400 mt-1">
+            Found <span class="text-white font-semibold">{{ total_matches }}</span> matches for "<span class="text-brand-400 font-semibold">{{ query }}</span>"
+        </p>
+    </div>
+
+    <!-- Search Tabs -->
+    <div class="space-y-10">
+        <!-- Tutorials -->
+        {% if tutorials_results %}
+        <div>
+            <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-book-open text-brand-400"></i>
+                <span>Tutorials ({{ tutorials_results|length }})</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for tut in tutorials_results %}
+                <a href="{% url 'tutorial_seo_detail' slug=tut.slug %}" class="p-5 rounded-xl bg-slate-800/80 border border-slate-700/80 hover:border-brand-500 transition hover-lift block">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">{{ tut.category.name }}</span>
+                    <h3 class="text-base font-bold text-white mt-1">{{ tut.title }}</h3>
+                    <p class="text-xs text-slate-400 line-clamp-2 mt-2 leading-relaxed">{{ tut.summary }}</p>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Exercises -->
+        {% if exercises_results %}
+        <div>
+            <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-code text-amber-400"></i>
+                <span>Exercises ({{ exercises_results|length }})</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for ex in exercises_results %}
+                <a href="{% url 'exercise_detail' slug=ex.slug %}" class="p-5 rounded-xl bg-slate-800/80 border border-slate-700/80 hover:border-amber-500 transition hover-lift block">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs px-2 py-0.5 rounded-full font-semibold uppercase
+                            {% if ex.difficulty == 'easy' %} bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                            {% elif ex.difficulty == 'medium' %} bg-amber-500/10 text-amber-400 border border-amber-500/20
+                            {% else %} bg-rose-500/10 text-rose-400 border border-rose-500/20 {% endif %}">
+                            {{ ex.get_difficulty_display }}
+                        </span>
+                        <span class="text-xs text-amber-400 font-bold">+{{ ex.points }} XP</span>
+                    </div>
+                    <h3 class="text-base font-bold text-white">{{ ex.title }}</h3>
+                    <p class="text-xs text-slate-400 line-clamp-2 mt-2 leading-relaxed">{{ ex.description }}</p>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quizzes -->
+        {% if quizzes_results %}
+        <div>
+            <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-circle-question text-indigo-400"></i>
+                <span>Quizzes ({{ quizzes_results|length }})</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for q in quizzes_results %}
+                <a href="{% url 'quiz_take' slug=q.slug %}" class="p-5 rounded-xl bg-slate-800/80 border border-slate-700/80 hover:border-indigo-500 transition hover-lift block">
+                    <span class="text-xs text-indigo-400 font-semibold uppercase">{{ q.category }}</span>
+                    <h3 class="text-base font-bold text-white mt-1">{{ q.title }}</h3>
+                    <p class="text-xs text-slate-400 mt-2">{{ q.description }}</p>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Projects -->
+        {% if projects_results %}
+        <div>
+            <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-folder-open text-purple-400"></i>
+                <span>Projects ({{ projects_results|length }})</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for proj in projects_results %}
+                <a href="{% url 'project_detail' slug=proj.slug %}" class="p-5 rounded-xl bg-slate-800/80 border border-slate-700/80 hover:border-purple-500 transition hover-lift block">
+                    <span class="text-xs text-purple-400 font-semibold uppercase">{{ proj.get_level_display }}</span>
+                    <h3 class="text-base font-bold text-white mt-1">{{ proj.title }}</h3>
+                    <p class="text-xs text-slate-400 line-clamp-2 mt-2 leading-relaxed">{{ proj.description }}</p>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if total_matches == 0 %}
+        <div class="text-center py-20 bg-slate-800/40 rounded-2xl border border-slate-800">
+            <i class="fa-solid fa-magnifying-glass text-4xl text-slate-600 mb-4"></i>
+            <h3 class="text-xl font-bold text-white">No results found</h3>
+            <p class="text-sm text-slate-400 max-w-md mx-auto mt-2">
+                We couldn't find anything matching "{{ query }}". Try searching for keywords like "for loop", "lists", "functions", or "oop".
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

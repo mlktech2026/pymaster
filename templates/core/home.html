@@ -1,0 +1,405 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Learn Python From Zero to Advanced | PyMaster{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative overflow-hidden py-16 md:py-24 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-b border-slate-800">
+    <!-- Background Glow Blobs -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute top-1/3 right-10 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <!-- Hero Left: Headlines & Call to Action -->
+            <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-semibold uppercase tracking-wider">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Learn Python From Zero to Advanced
+                </div>
+
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+                    Learn Python.<br>
+                    <span class="bg-gradient-to-r from-blue-400 via-indigo-300 to-emerald-400 bg-clip-text text-transparent">
+                        Practice. Build. Master.
+                    </span>
+                </h1>
+
+                <p class="text-lg sm:text-xl text-slate-300 max-w-2xl font-normal leading-relaxed">
+                    Learn Python step by step with tutorials, coding exercises, quizzes, and hands-on practice.
+                </p>
+
+                <!-- CTA Buttons -->
+                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                    <a href="{% url 'tutorial_seo_detail' slug='introduction-to-python' %}" 
+                       class="px-6 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-base shadow-xl shadow-brand-500/25 transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                        <span>Start Learning</span>
+                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </a>
+                    <a href="{% url 'tutorial_list' %}" 
+                       class="px-6 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-slate-200 hover:text-white font-semibold text-base transition">
+                        Explore Tutorials
+                    </a>
+                    <a href="{% url 'practice' %}" 
+                       class="px-5 py-3.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-semibold text-base transition flex items-center gap-2">
+                        <i class="fa-solid fa-terminal text-sm"></i>
+                        <span>Try Sandbox</span>
+                    </a>
+                </div>
+
+                <!-- Stats Badges -->
+                <div class="pt-6 grid grid-cols-3 gap-4 border-t border-slate-800/80 max-w-lg mx-auto lg:mx-0">
+                    <div>
+                        <p class="text-2xl sm:text-3xl font-bold text-white">{{ total_tutorials_count }}+</p>
+                        <p class="text-xs text-slate-400 uppercase tracking-wide">Structured Topics</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl sm:text-3xl font-bold text-white">{{ total_exercises_count }}+</p>
+                        <p class="text-xs text-slate-400 uppercase tracking-wide">Code Exercises</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl sm:text-3xl font-bold text-white">100%</p>
+                        <p class="text-xs text-slate-400 uppercase tracking-wide">Interactive Sandbox</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Right: Interactive Code Window Preview -->
+            <div class="lg:col-span-5">
+                <div class="terminal-window shadow-2xl">
+                    <div class="flex items-center justify-between px-4 py-3 bg-slate-800/90 border-b border-slate-700/80 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+                            <span class="ml-2 font-mono text-slate-400">hello_python.py</span>
+                        </div>
+                        <span class="text-emerald-400 text-[11px] font-mono"><i class="fa-solid fa-circle text-[8px] mr-1"></i>Ready</span>
+                    </div>
+                    <div class="p-4 bg-slate-950 font-mono text-xs sm:text-sm text-slate-200 leading-relaxed overflow-x-auto">
+                        <p><span class="text-indigo-400"># Welcome to PyMaster</span></p>
+                        <p><span class="text-blue-400">def</span> <span class="text-emerald-400">master_python</span>():</p>
+                        <p class="pl-4">skills = [<span class="text-amber-300">"Tutorials"</span>, <span class="text-amber-300">"Exercises"</span>, <span class="text-amber-300">"Quizzes"</span>, <span class="text-amber-300">"Projects"</span>]</p>
+                        <p class="pl-4"><span class="text-blue-400">for</span> step <span class="text-blue-400">in</span> skills:</p>
+                        <p class="pl-8">print(<span class="text-amber-300">f"Step complete: {step} ✓"</span>)</p>
+                        <p class="pl-4"><span class="text-blue-400">return</span> <span class="text-amber-300">"Certified Python Developer!"</span></p>
+                        <p class="pt-2">print(master_python())</p>
+                    </div>
+                    <div class="px-4 py-3 bg-slate-900 border-t border-slate-800 text-xs font-mono text-slate-400 flex items-center justify-between">
+                        <span class="text-slate-500">$ python hello_python.py</span>
+                        <span class="text-emerald-400">Certified Python Developer!</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Python Learning Roadmap Section -->
+<section class="py-16 bg-slate-900/60 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-12">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-brand-400">Structured Path</h2>
+            <p class="text-3xl font-extrabold text-white mt-2">Python Learning Roadmap</p>
+            <p class="text-slate-400 text-sm mt-2">
+                Follow our curated, step-by-step path from your very first line of code to building production software.
+            </p>
+        </div>
+
+        <!-- Roadmap Interactive Visual Flowchart -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {% for item in beginner_tutorials %}
+            <a href="{% url 'tutorial_seo_detail' slug=item.slug %}" 
+               class="p-4 rounded-xl bg-slate-800/80 border border-slate-700/80 hover:border-brand-500 hover:bg-slate-800 transition hover-lift text-center group flex flex-col justify-between">
+                <div>
+                    <span class="inline-flex w-7 h-7 rounded-lg bg-brand-500/10 text-brand-400 font-bold text-xs items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                        {{ forloop.counter }}
+                    </span>
+                    <h4 class="font-semibold text-sm text-slate-200 group-hover:text-brand-300 transition line-clamp-1">{{ item.title }}</h4>
+                </div>
+                <div class="mt-3 text-[11px] text-slate-400 flex items-center justify-center gap-1">
+                    <span>Learn</span>
+                    <i class="fa-solid fa-arrow-right text-[9px] group-hover:translate-x-1 transition-transform"></i>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-8">
+            <a href="{% url 'roadmap' %}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-sm font-semibold text-slate-200 hover:text-white hover:border-slate-600 transition">
+                <span>View Complete Interactive Roadmap</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Python Topics Section -->
+<section class="py-16 bg-slate-900 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+                <h2 class="text-xs font-semibold uppercase tracking-wider text-emerald-400">Core Curriculum</h2>
+                <p class="text-3xl font-extrabold text-white mt-1">Popular Python Topics</p>
+                <p class="text-slate-400 text-sm mt-1">Dive into bite-sized tutorials with syntax breakdown and code examples.</p>
+            </div>
+            <a href="{% url 'tutorial_list' %}" class="text-sm font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1 self-start md:self-auto">
+                <span>View all 66 topics</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for tut in popular_tutorials %}
+            <div class="p-6 rounded-2xl bg-slate-800/60 border border-slate-700/80 hover:border-slate-600 transition hover-lift flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wide
+                            {% if tut.category.level == 'beginner' %} bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                            {% elif tut.category.level == 'intermediate' %} bg-blue-500/10 text-blue-400 border border-blue-500/20
+                            {% else %} bg-purple-500/10 text-purple-400 border border-purple-500/20 {% endif %}">
+                            {{ tut.category.get_level_display }}
+                        </span>
+                        <span class="text-xs text-slate-400"><i class="fa-regular fa-clock mr-1"></i>{{ tut.estimated_read_time }} mins</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">{{ tut.title }}</h3>
+                    <p class="text-sm text-slate-300 line-clamp-2 mb-4 leading-relaxed">{{ tut.summary }}</p>
+                </div>
+                <div class="pt-4 border-t border-slate-700/60 flex items-center justify-between">
+                    <span class="text-xs text-slate-400 font-mono">{{ tut.category.name }}</span>
+                    <a href="{% url 'tutorial_seo_detail' slug=tut.slug %}" class="text-xs font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1">
+                        Read Lesson <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Practice Coding Exercises Section -->
+<section class="py-16 bg-slate-950 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+                <h2 class="text-xs font-semibold uppercase tracking-wider text-amber-400">Hands-on Practice</h2>
+                <p class="text-3xl font-extrabold text-white mt-1">Interactive Coding Exercises</p>
+                <p class="text-slate-400 text-sm mt-1">Write code in the browser, pass automated test cases, and earn XP.</p>
+            </div>
+            <a href="{% url 'exercise_list' %}" class="text-sm font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1">
+                <span>Browse all exercises</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for ex in featured_exercises %}
+            <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition hover-lift flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold
+                            {% if ex.difficulty == 'easy' %} bg-emerald-500/10 text-emerald-400 border border-emerald-500/30
+                            {% elif ex.difficulty == 'medium' %} bg-amber-500/10 text-amber-400 border border-amber-500/30
+                            {% else %} bg-rose-500/10 text-rose-400 border border-rose-500/30 {% endif %}">
+                            {{ ex.get_difficulty_display }}
+                        </span>
+                        <span class="text-xs font-semibold text-amber-400 flex items-center gap-1">
+                            <i class="fa-solid fa-bolt"></i> +{{ ex.points }} XP
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">{{ ex.title }}</h3>
+                    <p class="text-sm text-slate-400 line-clamp-3 mb-4 leading-relaxed">{{ ex.description }}</p>
+                </div>
+                <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                    <span class="text-xs text-slate-400"><i class="fa-solid fa-vial mr-1"></i>{{ ex.test_cases.count }} test cases</span>
+                    <a href="{% url 'exercise_detail' slug=ex.slug %}" class="px-3 py-1.5 rounded-lg bg-brand-600/20 hover:bg-brand-600/40 text-brand-400 font-semibold text-xs border border-brand-500/30 transition">
+                        Solve Code <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Python Quizzes Section -->
+<section class="py-16 bg-slate-900 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+                <h2 class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Knowledge Checks</h2>
+                <p class="text-3xl font-extrabold text-white mt-1">Interactive Python Quizzes</p>
+                <p class="text-slate-400 text-sm mt-1">MCQ, Code Output, and Fill-in-the-blank questions with instant scoring.</p>
+            </div>
+            <a href="{% url 'quiz_list' %}" class="text-sm font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1">
+                <span>View all quizzes</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for q in featured_quizzes %}
+            <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 hover:border-slate-600 transition hover-lift flex flex-col justify-between">
+                <div>
+                    <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-lg mb-4">
+                        <i class="fa-solid fa-circle-question"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1">{{ q.title }}</h3>
+                    <p class="text-xs text-slate-400 mb-4">{{ q.description|truncatewords:12 }}</p>
+                </div>
+                <div class="space-y-3 pt-3 border-t border-slate-700/60">
+                    <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span><i class="fa-regular fa-clock mr-1"></i>{{ q.time_limit_mins }} mins</span>
+                        <span>{{ q.questions.count }} Questions</span>
+                    </div>
+                    <a href="{% url 'quiz_take' slug=q.slug %}" class="w-full text-center block py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold transition">
+                        Take Quiz
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Gamification / Achievement Badges Section -->
+<section class="py-16 bg-slate-950 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-amber-400">Gamified Motivation</h2>
+            <p class="text-3xl font-extrabold text-white mt-2">Earn Badges & Build Coding Streaks</p>
+            <p class="text-slate-400 text-sm mt-2">
+                Level up as you solve exercises, finish tutorials, and maintain daily learning streaks.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+            {% for b in badges_preview %}
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center flex flex-col items-center hover-lift group">
+                <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform badge-glow">
+                    <i class="fa-solid {{ b.icon }}"></i>
+                </div>
+                <h4 class="font-bold text-xs text-slate-200 line-clamp-1 mb-1">{{ b.name }}</h4>
+                <p class="text-[11px] text-slate-400 line-clamp-2">{{ b.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-16 bg-slate-900 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-brand-400">Learner Stories</h2>
+            <p class="text-3xl font-extrabold text-white mt-2">Loved by Learners Worldwide</p>
+            <p class="text-slate-400 text-sm mt-2">Join thousands of software engineers learning Python interactively.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+                <div class="flex items-center gap-1 text-amber-400 text-xs mb-3">
+                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                </div>
+                <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                    "The interactive browser compiler and test case evaluations made learning Python enjoyable without wrestling with local environment bugs on day one!"
+                </p>
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-brand-600 flex items-center justify-center font-bold text-xs text-white">AK</div>
+                    <div>
+                        <p class="text-xs font-bold text-white">Ananya Kumar</p>
+                        <p class="text-[11px] text-slate-400">Junior Backend Developer</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+                <div class="flex items-center gap-1 text-amber-400 text-xs mb-3">
+                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                </div>
+                <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                    "The structured roadmap from loops and lists up to Django REST Framework gave me the clarity I needed to switch careers into tech."
+                </p>
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-xs text-white">DR</div>
+                    <div>
+                        <p class="text-xs font-bold text-white">David Reynolds</p>
+                        <p class="text-[11px] text-slate-400">Data Analyst</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+                <div class="flex items-center gap-1 text-amber-400 text-xs mb-3">
+                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                </div>
+                <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                    "The quizzes with code output questions and detailed explanations after submission helped reinforce subtleties I missed in textbooks."
+                </p>
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs text-white">SK</div>
+                    <div>
+                        <p class="text-xs font-bold text-white">Siddharth K.</p>
+                        <p class="text-[11px] text-slate-400">CS Student</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Accordion Section -->
+<section class="py-16 bg-slate-950">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-brand-400">Got Questions?</h2>
+            <p class="text-3xl font-extrabold text-white mt-2">Frequently Asked Questions</p>
+        </div>
+
+        <div class="space-y-4">
+            <details class="group p-5 rounded-xl bg-slate-900 border border-slate-800 [&_summary::-webkit-details-marker]:hidden cursor-pointer">
+                <summary class="flex items-center justify-between text-base font-semibold text-white">
+                    <span>Is this Python learning platform free?</span>
+                    <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+                </summary>
+                <p class="mt-3 text-sm text-slate-400 leading-relaxed">
+                    Yes! All 66 tutorials, coding exercises, quizzes, and online compilers are completely free and open for learners worldwide.
+                </p>
+            </details>
+
+            <details class="group p-5 rounded-xl bg-slate-900 border border-slate-800 [&_summary::-webkit-details-marker]:hidden cursor-pointer">
+                <summary class="flex items-center justify-between text-base font-semibold text-white">
+                    <span>Do I need to install Python on my computer to practice?</span>
+                    <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+                </summary>
+                <p class="mt-3 text-sm text-slate-400 leading-relaxed">
+                    No! You can practice writing, running, and submitting Python code directly in your browser using our secure isolated code playground.
+                </p>
+            </details>
+
+            <details class="group p-5 rounded-xl bg-slate-900 border border-slate-800 [&_summary::-webkit-details-marker]:hidden cursor-pointer">
+                <summary class="flex items-center justify-between text-base font-semibold text-white">
+                    <span>How does progress tracking and streak work?</span>
+                    <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+                </summary>
+                <p class="mt-3 text-sm text-slate-400 leading-relaxed">
+                    When you create a free account, every completed lesson, solved exercise, and submitted quiz tracks toward your total XP, course percentage, and daily coding streak.
+                </p>
+            </details>
+
+            <details class="group p-5 rounded-xl bg-slate-900 border border-slate-800 [&_summary::-webkit-details-marker]:hidden cursor-pointer">
+                <summary class="flex items-center justify-between text-base font-semibold text-white">
+                    <span>What level does this course cover?</span>
+                    <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+                </summary>
+                <p class="mt-3 text-sm text-slate-400 leading-relaxed">
+                    The platform covers Beginner Level (Basics, Variables, Control Flow, Collections, Functions), Intermediate Level (Comprehensions, OOP, Exceptions, Files, APIs), and Advanced Level (Asyncio, Pytest, Logging, Django REST Framework).
+                </p>
+            </details>
+        </div>
+    </div>
+</section>
+{% endblock %}

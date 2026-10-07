@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile | PyMaster{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 mb-8">
+        <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-3xl font-extrabold text-white uppercase shadow-xl shadow-brand-500/20">
+            {{ user.username|slice:":2" }}
+        </div>
+        <div class="text-center sm:text-left flex-1">
+            <h1 class="text-2xl font-bold text-white">{{ user.username }}</h1>
+            <p class="text-xs text-slate-400 mt-0.5">{{ user.email }}</p>
+            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-3 text-xs">
+                <span class="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold">
+                    <i class="fa-solid fa-fire mr-1"></i>{{ user.profile.current_streak }} Day Streak (Best: {{ user.profile.longest_streak }}d)
+                </span>
+                <span class="px-2.5 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 font-semibold">
+                    <i class="fa-solid fa-star mr-1"></i>{{ user.profile.total_xp }} XP Earned
+                </span>
+                <span class="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold">
+                    <i class="fa-solid fa-calendar-check mr-1"></i>Member since {{ user.date_joined|date:"M Y" }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Edit Form -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="md:col-span-2 p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+            <h2 class="text-lg font-bold text-white mb-4">Edit Profile Settings</h2>
+            <form method="POST" enctype="multipart/form-data" class="space-y-4">
+                {% csrf_token %}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">First Name</label>
+                        {{ u_form.first_name }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Last Name</label>
+                        {{ u_form.last_name }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Email</label>
+                    {{ u_form.email }}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Bio</label>
+                    {{ p_form.bio }}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Preferred Theme</label>
+                    {{ p_form.preferred_theme }}
+                </div>
+
+                <button type="submit" 
+                        class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs shadow-lg transition">
+                    Save Changes
+                </button>
+            </form>
+        </div>
+
+        <!-- Badges Shelf -->
+        <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+            <h2 class="text-lg font-bold text-white mb-4 flex items-center justify-between">
+                <span>Earned Badges</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400">{{ user_badges.count }}</span>
+            </h2>
+
+            {% if user_badges %}
+            <div class="space-y-3">
+                {% for ub in user_badges %}
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-900 border border-slate-800">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg">
+                        <i class="fa-solid {{ ub.badge.icon }}"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-white">{{ ub.badge.name }}</h4>
+                        <p class="text-[11px] text-slate-400">{{ ub.awarded_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-slate-500 text-xs">
+                <i class="fa-solid fa-award text-3xl mb-2 text-slate-600"></i>
+                <p>No badges earned yet.</p>
+                <p class="mt-1 text-slate-400">Complete tutorials and quizzes to unlock badges!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

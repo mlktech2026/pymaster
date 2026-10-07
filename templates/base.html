@@ -1,0 +1,288 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PyMaster - Learn Python Step by Step{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Learn Python step by step with interactive tutorials, coding exercises, quizzes, and browser-based coding practice.{% endblock %}">
+    
+    <!-- Open Graph SEO -->
+    <meta property="og:title" content="{% block og_title %}PyMaster - Interactive Python Learning Platform{% endblock %}">
+    <meta property="og:description" content="Master Python from zero to advanced through hands-on practice, quizzes, and real projects.">
+    <meta property="og:type" content="website">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        },
+                        darkbg: '#0b0f19',
+                        darkcard: '#111827',
+                        darkborder: '#1f2937',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- CodeMirror 5 CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/nord.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-4">
+                
+                <!-- Logo & Brand -->
+                <div class="flex items-center gap-6">
+                    <a href="{% url 'home' %}" class="flex items-center gap-2.5 font-bold text-xl tracking-tight text-white group">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
+                            <i class="fa-brands fa-python text-2xl"></i>
+                        </div>
+                        <span class="bg-gradient-to-r from-blue-400 via-indigo-300 to-emerald-400 bg-clip-text text-transparent">PyMaster</span>
+                    </a>
+
+                    <!-- Desktop Nav Links -->
+                    <nav class="hidden lg:flex items-center gap-1 text-sm font-medium text-slate-300">
+                        <a href="{% url 'home' %}" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/80 transition">Home</a>
+                        <a href="{% url 'tutorial_list' %}" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/80 transition">Tutorials</a>
+                        <a href="{% url 'exercise_list' %}" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/80 transition">Exercises</a>
+                        <a href="{% url 'quiz_list' %}" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/80 transition">Quizzes</a>
+                        <a href="{% url 'practice' %}" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/80 transition flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Practice
+                        </a>
+                        <a href="{% url 'project_list' %}" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/80 transition">Projects</a>
+                        <a href="{% url 'roadmap' %}" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/80 transition">Roadmap</a>
+                    </nav>
+                </div>
+
+                <!-- Right Nav Section: Global Search + Auth & Profile -->
+                <div class="flex items-center gap-3">
+                    <!-- Global Search Bar -->
+                    <form action="{% url 'search' %}" method="GET" class="hidden md:flex relative w-48 lg:w-64">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                        </span>
+                        <input type="text" name="q" placeholder="Search Python topics..." value="{{ query|default:'' }}"
+                               class="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-slate-800/90 border border-slate-700 text-slate-200 placeholder-slate-400 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+                    </form>
+
+                    {% if user.is_authenticated %}
+                        <!-- Streak Pill -->
+                        <div class="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold" title="Daily Coding Streak">
+                            <i class="fa-solid fa-fire text-amber-500 animate-bounce"></i>
+                            <span>{{ user_streak }}d</span>
+                        </div>
+
+                        <!-- XP Pill -->
+                        <div class="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-semibold" title="Total Experience Points">
+                            <i class="fa-solid fa-star text-brand-400"></i>
+                            <span>{{ user_xp }} XP</span>
+                        </div>
+
+                        <!-- User Profile Dropdown -->
+                        <div class="relative">
+                            <button id="user-menu-btn" class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-800 transition border border-slate-700">
+                                <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-brand-500 to-indigo-600 flex items-center justify-center text-xs font-bold text-white uppercase">
+                                    {{ user.username|slice:":2" }}
+                                </div>
+                                <span class="hidden md:inline text-xs font-medium text-slate-200">{{ user.username }}</span>
+                                <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                            </button>
+
+                            <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-52 rounded-xl bg-slate-800 border border-slate-700 shadow-2xl py-1 text-sm z-50">
+                                <div class="px-4 py-2 border-b border-slate-700">
+                                    <p class="font-semibold text-white">{{ user.username }}</p>
+                                    <p class="text-xs text-slate-400 truncate">{{ user.email }}</p>
+                                </div>
+                                <a href="{% url 'dashboard' %}" class="flex items-center gap-2.5 px-4 py-2 text-slate-200 hover:bg-slate-700/60 transition">
+                                    <i class="fa-solid fa-gauge text-slate-400"></i> Dashboard
+                                </a>
+                                <a href="{% url 'profile' %}" class="flex items-center gap-2.5 px-4 py-2 text-slate-200 hover:bg-slate-700/60 transition">
+                                    <i class="fa-solid fa-user text-slate-400"></i> My Profile & Badges
+                                </a>
+                                {% if user.is_staff %}
+                                <a href="/admin/" target="_blank" class="flex items-center gap-2.5 px-4 py-2 text-amber-400 hover:bg-slate-700/60 transition">
+                                    <i class="fa-solid fa-gear"></i> Admin Panel
+                                </a>
+                                {% endif %}
+                                <div class="border-t border-slate-700 my-1"></div>
+                                <a href="{% url 'logout' %}" class="flex items-center gap-2.5 px-4 py-2 text-rose-400 hover:bg-slate-700/60 transition">
+                                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+
+                    {% else %}
+                        <!-- Logged Out Actions -->
+                        <div class="flex items-center gap-2">
+                            <a href="{% url 'login' %}" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-200 hover:text-white hover:bg-slate-800 transition">
+                                Login
+                            </a>
+                            <a href="{% url 'register' %}" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-brand-600 hover:bg-brand-500 text-white shadow-md shadow-brand-500/20 transition">
+                                Register
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <!-- Mobile Menu Hamburger Button -->
+                    <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-800 bg-slate-900 px-4 pt-2 pb-4 space-y-2">
+            <form action="{% url 'search' %}" method="GET" class="relative my-2">
+                <input type="text" name="q" placeholder="Search Python topics..." value="{{ query|default:'' }}"
+                       class="w-full pl-9 pr-3 py-2 text-sm rounded-lg bg-slate-800 border border-slate-700 text-slate-200">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+            </form>
+            <a href="{% url 'home' %}" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-200 hover:bg-slate-800">Home</a>
+            <a href="{% url 'tutorial_list' %}" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-200 hover:bg-slate-800">Tutorials</a>
+            <a href="{% url 'exercise_list' %}" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-200 hover:bg-slate-800">Exercises</a>
+            <a href="{% url 'quiz_list' %}" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-200 hover:bg-slate-800">Quizzes</a>
+            <a href="{% url 'practice' %}" class="block px-3 py-2 rounded-lg text-base font-medium text-emerald-400 hover:bg-slate-800">Practice Editor</a>
+            <a href="{% url 'project_list' %}" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-200 hover:bg-slate-800">Projects</a>
+            <a href="{% url 'roadmap' %}" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-200 hover:bg-slate-800">Roadmap</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="block px-3 py-2 rounded-lg text-base font-medium text-brand-400 hover:bg-slate-800">My Dashboard</a>
+                <a href="{% url 'logout' %}" class="block px-3 py-2 rounded-lg text-base font-medium text-rose-400 hover:bg-slate-800">Logout</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Global Toast Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+    <!-- Django Flash Messages -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full">
+        {% for message in messages %}
+        <div class="alert-banner flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-medium mb-2
+            {% if message.tags == 'error' %} bg-rose-500/10 border-rose-500/30 text-rose-300
+            {% elif message.tags == 'success' %} bg-emerald-500/10 border-emerald-500/30 text-emerald-300
+            {% else %} bg-blue-500/10 border-blue-500/30 text-blue-300 {% endif %}">
+            <div class="flex items-center gap-2.5">
+                <i class="fa-solid {% if message.tags == 'error' %}fa-circle-xmark{% elif message.tags == 'success' %}fa-circle-check{% else %}fa-circle-info{% endif %}"></i>
+                <span>{{ message }}</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Page Body -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800/80 text-slate-400 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Col 1: Brand -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2 font-bold text-xl text-white">
+                        <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white">
+                            <i class="fa-brands fa-python text-xl"></i>
+                        </div>
+                        <span>PyMaster</span>
+                    </div>
+                    <p class="text-sm text-slate-400 leading-relaxed">
+                        A modern, interactive Python learning platform designed to take you from first line of code to full-stack mastery.
+                    </p>
+                    <div class="flex gap-4 text-slate-400">
+                        <a href="https://github.com" target="_blank" class="hover:text-white transition"><i class="fa-brands fa-github text-lg"></i></a>
+                        <a href="https://twitter.com" target="_blank" class="hover:text-white transition"><i class="fa-brands fa-x-twitter text-lg"></i></a>
+                        <a href="https://discord.com" target="_blank" class="hover:text-white transition"><i class="fa-brands fa-discord text-lg"></i></a>
+                    </div>
+                </div>
+
+                <!-- Col 2: Learn -->
+                <div>
+                    <h4 class="text-white font-semibold mb-3 text-sm uppercase tracking-wider">Learn Python</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{% url 'tutorial_list' %}" class="hover:text-white transition">Tutorial Catalog</a></li>
+                        <li><a href="{% url 'tutorial_seo_detail' slug='introduction-to-python' %}" class="hover:text-white transition">Python Basics</a></li>
+                        <li><a href="{% url 'tutorial_seo_detail' slug='variables' %}" class="hover:text-white transition">Variables & Types</a></li>
+                        <li><a href="{% url 'tutorial_seo_detail' slug='functions' %}" class="hover:text-white transition">Functions</a></li>
+                        <li><a href="{% url 'tutorial_seo_detail' slug='object-oriented-programming' %}" class="hover:text-white transition">OOP in Python</a></li>
+                        <li><a href="{% url 'roadmap' %}" class="hover:text-white transition">Learning Roadmap</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Practice & Test -->
+                <div>
+                    <h4 class="text-white font-semibold mb-3 text-sm uppercase tracking-wider">Practice & Test</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{% url 'exercise_list' %}" class="hover:text-white transition">Python Exercises</a></li>
+                        <li><a href="{% url 'quiz_list' %}" class="hover:text-white transition">Interactive Quizzes</a></li>
+                        <li><a href="{% url 'practice' %}" class="hover:text-white transition">Online Code Compiler</a></li>
+                        <li><a href="{% url 'project_list' %}" class="hover:text-white transition">Real-world Projects</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Account & Community -->
+                <div>
+                    <h4 class="text-white font-semibold mb-3 text-sm uppercase tracking-wider">Platform</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{% url 'dashboard' %}" class="hover:text-white transition">User Dashboard</a></li>
+                        <li><a href="{% url 'register' %}" class="hover:text-white transition">Create Free Account</a></li>
+                        <li><a href="{% url 'login' %}" class="hover:text-white transition">Sign In</a></li>
+                        <li><a href="/robots.txt" class="hover:text-white transition">Robots.txt & SEO</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800/80 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400">
+                <p>&copy; 2026 PyMaster. Built with Python & Django. All rights reserved.</p>
+                <p class="mt-2 sm:mt-0 flex gap-4">
+                    <span>Privacy Policy</span>
+                    <span>Terms of Service</span>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CodeMirror Core Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+
+    <!-- Custom Global JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

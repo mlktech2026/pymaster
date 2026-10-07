@@ -1,0 +1,715 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz: {{ quiz.title }} | PyMaster{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    
+    <!-- Top Quiz Header & Live Timer -->
+    <div class="p-6 rounded-3xl bg-slate-800/90 border border-slate-700/80 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-1">
+                <span>{{ quiz.category }}</span>
+                <span>•</span>
+                <span class="capitalize">{{ quiz.get_difficulty_display }}</span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-black text-white">{{ quiz.title }}</h1>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <!-- Timer Display -->
+            <div id="timer-box" class="px-4 py-2 rounded-2xl bg-slate-900 border border-slate-700 text-center flex items-center gap-3">
+                <i class="fa-solid fa-stopwatch text-indigo-400 text-lg"></i>
+                <div class="text-left font-mono">
+                    <span class="text-[10px] text-slate-400 uppercase block">Time Remaining</span>
+                    <span id="quiz-timer" class="text-lg font-black text-amber-400">
+                        {% if quiz.time_limit_mins > 0 %}{{ quiz.time_limit_mins }}:00{% else %}No Timer{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Finish / Submit Button -->
+            <button id="header-submit-btn" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
+                <i class="fa-solid fa-paper-plane text-xs"></i>
+                <span>Submit Quiz</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Question Progress Bar & Question Navigator Bar -->
+    <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-300 font-bold" id="progress-text">Question 1 of {{ total_questions }}</span>
+            <span class="text-indigo-400 font-bold" id="progress-pct">0% Complete</span>
+        </div>
+
+        <!-- Visual Progress Bar -->
+        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+            <div id="progress-bar-fill" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-400 transition-all duration-300" style="width: 10%;"></div>
+        </div>
+
+        <!-- Interactive Question Pill Navigator (1 2 3 ... ✓ ● ○) -->
+        <div class="pt-2 flex flex-wrap items-center gap-2" id="question-navigator">
+            {% for q in questions %}
+            <button type="button" 
+                    data-index="{{ forloop.counter0 }}" 
+                    class="nav-pill w-8 h-8 rounded-lg text-xs font-bold font-mono transition flex items-center justify-center border
+                    {% if forloop.first %} bg-indigo-600 text-white border-indigo-400 ring-2 ring-indigo-500/40
+                    {% else %} bg-slate-800 text-slate-400 border-slate-700 hover:text-white hover:bg-slate-700 {% endif %}">
+                {{ forloop.counter }}
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Master Quiz Container (Single Question Active at a Time) -->
+    <div id="questions-viewport" class="space-y-6">
+        {% for q in questions %}
+        <div class="question-card {% if not forloop.first %}hidden{% endif %} p-6 sm:p-8 rounded-3xl bg-slate-800/80 border border-slate-700/80 shadow-2xl space-y-6"
+             data-qid="{{ q.id }}"
+             data-index="{{ forloop.counter0 }}"
+             data-type="{{ q.question_type }}">
+            
+            <!-- Question Card Top Badges -->
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700/80 pb-4">
+                <div class="flex items-center gap-2">
+                    <span class="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-bold">
+                        {{ q.get_question_type_display }}
+                    </span>
+                    <span class="text-xs px-2.5 py-0.5 rounded-full font-semibold uppercase
+                        {% if q.difficulty == 'easy' %} bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                        {% elif q.difficulty == 'medium' %} bg-amber-500/10 text-amber-400 border border-amber-500/20
+                        {% else %} bg-rose-500/10 text-rose-400 border border-rose-500/20 {% endif %}">
+                        {{ q.get_difficulty_display }}
+                    </span>
+                </div>
+                <span class="text-xs font-mono font-bold text-amber-400">
+                    <i class="fa-solid fa-star text-[10px] mr-1"></i>{{ q.marks }} Mark{{ q.marks|pluralize }}
+                </span>
+            </div>
+
+            <!-- Question Statement -->
+            <div class="text-lg sm:text-xl font-bold text-white leading-relaxed">
+                {{ q.question_text }}
+            </div>
+
+            <!-- Optional Code Snippet -->
+            {% if q.code_snippet and q.question_type != 'debug_code' and q.question_type != 'mini_challenge' %}
+            <div class="terminal-window">
+                <div class="px-4 py-2 bg-slate-900 border-b border-slate-800 text-[11px] font-mono text-slate-400">Python 3</div>
+                <pre class="p-4 bg-slate-950 font-mono text-xs sm:text-sm text-slate-200 overflow-x-auto leading-relaxed">{{ q.code_snippet }}</pre>
+            </div>
+            {% endif %}
+
+            <!-- ======================================================== -->
+            <!-- DYNAMIC WIDGETS PER QUESTION TYPE -->
+            <!-- ======================================================== -->
+
+            <!-- 1. Multiple Choice (MCQ), Code Output, Find Error, Scenario, Identify Output, Diagram, Code Comparison -->
+            {% if q.question_type in 'mcq,code_output,find_error,scenario_based,identify_output,diagram_question,code_comparison' %}
+            <div class="space-y-3 pt-2">
+                {% for opt in q.options.all %}
+                <label class="radio-card flex items-center gap-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-700/80 hover:border-indigo-500 hover:bg-slate-900 cursor-pointer transition text-sm text-slate-200 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/30 has-[:checked]:text-white shadow-sm">
+                    <input type="radio" name="answer_{{ q.id }}" value="{{ opt.id }}" class="hidden">
+                    <div class="w-6 h-6 rounded-full border-2 border-slate-600 flex items-center justify-center flex-shrink-0 group-has-[:checked]:border-indigo-500">
+                        <div class="radio-dot w-2.5 h-2.5 rounded-full bg-indigo-500 hidden"></div>
+                    </div>
+                    <span class="font-mono text-xs sm:text-sm">{{ opt.option_text|linebreaksbr }}</span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <!-- 2. Multiple Select (Checkboxes) -->
+            {% elif q.question_type == 'multiple_select' %}
+            <div class="space-y-3 pt-2">
+                <p class="text-xs text-indigo-400 font-semibold mb-2">Select all choices that apply:</p>
+                {% for opt in q.options.all %}
+                <label class="checkbox-card flex items-center gap-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-700/80 hover:border-indigo-500 hover:bg-slate-900 cursor-pointer transition text-sm text-slate-200 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/30 has-[:checked]:text-white shadow-sm">
+                    <input type="checkbox" name="answer_{{ q.id }}" value="{{ opt.id }}" class="hidden">
+                    <div class="check-box w-6 h-6 rounded-lg border-2 border-slate-600 flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid fa-check text-xs text-white hidden check-icon"></i>
+                    </div>
+                    <span class="font-mono text-xs sm:text-sm">{{ opt.option_text }}</span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <!-- 3. True / False Cards -->
+            {% elif q.question_type == 'true_false' %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <label class="tf-card p-6 rounded-2xl bg-slate-900 border border-slate-700 hover:border-emerald-500 cursor-pointer flex flex-col items-center justify-center gap-3 transition text-center has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-950/30 shadow-md">
+                    <input type="radio" name="answer_{{ q.id }}" value="True" class="hidden">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <span class="text-base font-bold text-white">TRUE</span>
+                </label>
+                <label class="tf-card p-6 rounded-2xl bg-slate-900 border border-slate-700 hover:border-rose-500 cursor-pointer flex flex-col items-center justify-center gap-3 transition text-center has-[:checked]:border-rose-500 has-[:checked]:bg-rose-950/30 shadow-md">
+                    <input type="radio" name="answer_{{ q.id }}" value="False" class="hidden">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                    <span class="text-base font-bold text-white">FALSE</span>
+                </label>
+            </div>
+
+            <!-- 4. Fill in the Blank, Code Completion, Predict Variable, Short Answer -->
+            {% elif q.question_type in 'fill_blank,code_completion,predict_variable,short_answer' %}
+            <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+                <label class="block text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">
+                    <i class="fa-solid fa-i-cursor text-indigo-400 mr-1.5"></i> Type Your Answer:
+                </label>
+                <input type="text" 
+                       id="input_{{ q.id }}" 
+                       autocomplete="off" 
+                       spellcheck="false"
+                       placeholder="Enter exact keyword, token, or value..."
+                       class="text-input-field w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-sm font-mono text-emerald-300 placeholder-slate-600 focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <!-- 5. Arrange the Code, Code Ordering, Order / Sequence Steps -->
+            {% elif q.question_type in 'arrange_code,code_ordering,order_sequence' %}
+            <div class="space-y-3">
+                <p class="text-xs text-indigo-400 font-semibold">
+                    <i class="fa-solid fa-arrows-up-down mr-1"></i> Reorder the blocks into the correct sequence (use arrows or drag):
+                </p>
+                <div class="sortable-list space-y-2" id="sortable_{{ q.id }}">
+                    {% for block in q.question_data.shuffled_blocks %}
+                    <div class="sortable-item flex items-center justify-between p-3.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono text-slate-200 cursor-grab active:cursor-grabbing hover:border-slate-500 transition" draggable="true">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-grip-vertical text-slate-500"></i>
+                            <span class="block-content">{{ block }}</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button type="button" class="btn-move-up p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white" title="Move Up">
+                                <i class="fa-solid fa-arrow-up text-xs"></i>
+                            </button>
+                            <button type="button" class="btn-move-down p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white" title="Move Down">
+                                <i class="fa-solid fa-arrow-down text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 6. Match the Following -->
+            {% elif q.question_type == 'match_following' %}
+            <div class="space-y-4">
+                <p class="text-xs text-indigo-400 font-semibold">Match each concept on the left with its definition on the right:</p>
+                <div class="space-y-3" id="match_{{ q.id }}">
+                    {% for concept in q.question_data.concepts %}
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-slate-900 border border-slate-700 gap-3">
+                        <span class="font-bold text-sm font-mono text-emerald-400 min-w-[120px]">{{ concept }}</span>
+                        <select class="match-select w-full sm:w-auto flex-1 px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" data-concept="{{ concept }}">
+                            <option value="">-- Choose Matching Definition --</option>
+                            {% for def_item in q.question_data.definitions %}
+                            <option value="{{ def_item }}">{{ def_item }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 7. Drag and Drop Blank -->
+            {% elif q.question_type == 'drag_drop_blank' %}
+            <div class="space-y-4">
+                <p class="text-xs text-indigo-400 font-semibold">Click or drag the correct keyword into the highlighted slot:</p>
+                
+                <!-- Target Slot Container -->
+                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 font-mono text-sm text-slate-300 flex items-center gap-2">
+                    <div id="drop-slot_{{ q.id }}" class="drop-target px-4 py-1.5 rounded-lg border-2 border-dashed border-indigo-500 bg-indigo-950/20 text-indigo-300 font-bold min-w-[100px] text-center">
+                        [ Drop Here ]
+                    </div>
+                    <span class="text-slate-400">{{ q.code_snippet }}</span>
+                </div>
+
+                <!-- Draggable Token Chips -->
+                <div class="flex flex-wrap gap-2 pt-2" id="chips_{{ q.id }}">
+                    {% for token in q.question_data.tokens %}
+                    <button type="button" 
+                            class="token-chip px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono font-bold text-white hover:border-indigo-500 hover:bg-slate-800 transition shadow" 
+                            data-token="{{ token }}">
+                        {{ token }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 8. Debug the Code & Mini Challenge (Interactive CodeMirror) -->
+            {% elif q.question_type in 'debug_code,mini_challenge' %}
+            <div class="space-y-3">
+                <div class="flex items-center justify-between text-xs text-slate-400 font-mono">
+                    <span>Edit and fix the code below:</span>
+                    <button type="button" class="btn-run-debug px-3 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold transition flex items-center gap-1.5" data-qid="{{ q.id }}">
+                        <i class="fa-solid fa-play text-[10px]"></i> Run & Test
+                    </button>
+                </div>
+
+                <div class="rounded-xl overflow-hidden border border-slate-700">
+                    <textarea class="code-editor-target" id="editor_{{ q.id }}">{{ q.code_snippet }}</textarea>
+                </div>
+
+                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs min-h-[50px] text-slate-400" id="debug-output_{{ q.id }}">
+                    Click 'Run & Test' to test your code before submitting.
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Bottom Controls: [Previous] [Clear] [Next] [Submit] -->
+    <div class="p-6 rounded-3xl bg-slate-800/90 border border-slate-700/80 shadow-xl flex items-center justify-between gap-4">
+        <button id="btn-prev" class="px-5 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 hover:text-white font-bold text-xs transition flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i> Previous
+        </button>
+
+        <button id="btn-clear" class="px-4 py-2 rounded-xl text-slate-400 hover:text-rose-400 text-xs font-semibold transition">
+            <i class="fa-solid fa-rotate-left mr-1"></i> Clear Answer
+        </button>
+
+        <div class="flex items-center gap-3">
+            <button id="btn-next" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
+                <span>Next</span> <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <button id="btn-submit" class="hidden px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition flex items-center gap-2">
+                <i class="fa-solid fa-check"></i> <span>Finish & Submit</span>
+            </button>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const totalQuestions = {{ total_questions }};
+    let currentIndex = 0;
+    const cards = document.querySelectorAll('.question-card');
+    const navPills = document.querySelectorAll('.nav-pill');
+    const progressBarFill = document.getElementById('progress-bar-fill');
+    const progressText = document.getElementById('progress-text');
+    const progressPct = document.getElementById('progress-pct');
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    const btnSubmit = document.getElementById('btn-submit');
+    const btnClear = document.getElementById('btn-clear');
+    const headerSubmitBtn = document.getElementById('header-submit-btn');
+
+    // Store user answers in memory: { qid: value }
+    const userAnswers = {};
+
+    // CodeMirror instances for debug/challenge questions
+    const codeMirrorInstances = {};
+    document.querySelectorAll('.code-editor-target').forEach(textarea => {
+        const qid = textarea.id.replace('editor_', '');
+        const cm = CodeMirror.fromTextArea(textarea, {
+            mode: 'python',
+            theme: 'dracula',
+            lineNumbers: true,
+            indentUnit: 4,
+            autoCloseBrackets: true,
+            matchBrackets: true
+        });
+        cm.setSize('100%', 160);
+        cm.on('change', () => {
+            userAnswers[qid] = cm.getValue();
+            updatePillStatus(currentIndex);
+        });
+        codeMirrorInstances[qid] = cm;
+    });
+
+    // 1. Navigation logic
+    function showQuestion(index) {
+        if (index < 0 || index >= totalQuestions) return;
+        currentIndex = index;
+
+        cards.forEach((card, idx) => {
+            if (idx === index) {
+                card.classList.remove('hidden');
+                // Refresh CodeMirror if present
+                const cmTarget = card.querySelector('.code-editor-target');
+                if (cmTarget) {
+                    const qid = cmTarget.id.replace('editor_', '');
+                    if (codeMirrorInstances[qid]) {
+                        setTimeout(() => codeMirrorInstances[qid].refresh(), 50);
+                    }
+                }
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+
+        // Update Nav pills styling
+        navPills.forEach((pill, idx) => {
+            pill.classList.remove('ring-2', 'ring-indigo-500/40', 'bg-indigo-600', 'text-white');
+            if (idx === index) {
+                pill.classList.add('ring-2', 'ring-indigo-500/40', 'bg-indigo-600', 'text-white');
+            }
+        });
+
+        // Update progress bar
+        const answeredCount = Object.keys(userAnswers).filter(k => {
+            const v = userAnswers[k];
+            return v !== "" && v !== null && (Array.isArray(v) ? v.length > 0 : true);
+        }).length;
+
+        const pct = Math.round((answeredCount / totalQuestions) * 100);
+        progressText.innerText = `Question ${index + 1} of ${totalQuestions}`;
+        progressPct.innerText = `${pct}% Complete (${answeredCount}/${totalQuestions} Answered)`;
+        progressBarFill.style.width = `${Math.max(10, pct)}%`;
+
+        // Update Prev / Next / Submit buttons
+        btnPrev.disabled = (index === 0);
+        btnPrev.classList.toggle('opacity-50', index === 0);
+
+        if (index === totalQuestions - 1) {
+            btnNext.classList.add('hidden');
+            btnSubmit.classList.remove('hidden');
+        } else {
+            btnNext.classList.remove('hidden');
+            btnSubmit.classList.add('hidden');
+        }
+    }
+
+    function updatePillStatus(index) {
+        const card = cards[index];
+        const qid = card.dataset.qid;
+        const ans = userAnswers[qid];
+        const pill = navPills[index];
+
+        const hasAnswer = ans !== undefined && ans !== "" && ans !== null && (Array.isArray(ans) ? ans.length > 0 : true);
+        if (hasAnswer) {
+            pill.classList.add('border-emerald-500', 'text-emerald-400');
+        } else {
+            pill.classList.remove('border-emerald-500', 'text-emerald-400');
+        }
+    }
+
+    // Pill click jumps
+    navPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            showQuestion(parseInt(pill.dataset.index));
+        });
+    });
+
+    btnPrev.addEventListener('click', () => showQuestion(currentIndex - 1));
+    btnNext.addEventListener('click', () => showQuestion(currentIndex + 1));
+
+    // Clear Answer button
+    btnClear.addEventListener('click', () => {
+        const card = cards[currentIndex];
+        const qid = card.dataset.qid;
+        const qType = card.dataset.type;
+
+        delete userAnswers[qid];
+        if (qType === 'mcq' || qType === 'true_false' || qType === 'code_output' || qType === 'find_error' || qType === 'scenario_based' || qType === 'identify_output' || qType === 'diagram_question' || qType === 'code_comparison') {
+            card.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+            card.querySelectorAll('.radio-dot').forEach(d => d.classList.add('hidden'));
+        } else if (qType === 'multiple_select') {
+            card.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+            card.querySelectorAll('.check-icon').forEach(i => i.classList.add('hidden'));
+            card.querySelectorAll('.check-box').forEach(b => b.classList.remove('bg-indigo-600', 'border-indigo-500'));
+        } else if (qType === 'fill_blank' || qType === 'code_completion' || qType === 'predict_variable' || qType === 'short_answer') {
+            const input = card.querySelector('.text-input-field');
+            if (input) input.value = '';
+        } else if (qType === 'drag_drop_blank') {
+            const slot = card.querySelector('.drop-target');
+            if (slot) slot.innerText = '[ Drop Here ]';
+        } else if (qType === 'match_following') {
+            card.querySelectorAll('.match-select').forEach(s => s.value = '');
+        } else if (codeMirrorInstances[qid]) {
+            codeMirrorInstances[qid].setValue('');
+        }
+
+        updatePillStatus(currentIndex);
+        showToast('Answer cleared', 'info');
+    });
+
+    // 2. Interactivity Handlers for Question Types
+
+    // A. Radio cards (MCQ, True/False, etc.)
+    document.querySelectorAll('.radio-card, .tf-card').forEach(label => {
+        const input = label.querySelector('input[type="radio"]');
+        input.addEventListener('change', () => {
+            const card = label.closest('.question-card');
+            const qid = card.dataset.qid;
+            userAnswers[qid] = input.value;
+
+            // Reset other radio dots
+            card.querySelectorAll('.radio-dot').forEach(d => d.classList.add('hidden'));
+            const dot = label.querySelector('.radio-dot');
+            if (dot) dot.classList.remove('hidden');
+
+            updatePillStatus(currentIndex);
+        });
+    });
+
+    // B. Checkbox cards (Multiple Select)
+    document.querySelectorAll('.checkbox-card').forEach(label => {
+        const input = label.querySelector('input[type="checkbox"]');
+        input.addEventListener('change', () => {
+            const card = label.closest('.question-card');
+            const qid = card.dataset.qid;
+            const checkedBoxes = Array.from(card.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.value);
+            userAnswers[qid] = checkedBoxes;
+
+            const icon = label.querySelector('.check-icon');
+            const box = label.querySelector('.check-box');
+            if (input.checked) {
+                icon.classList.remove('hidden');
+                box.classList.add('bg-indigo-600', 'border-indigo-500');
+            } else {
+                icon.classList.add('hidden');
+                box.classList.remove('bg-indigo-600', 'border-indigo-500');
+            }
+
+            updatePillStatus(currentIndex);
+        });
+    });
+
+    // C. Text input fields (Fill in blank, predict, short answer)
+    document.querySelectorAll('.text-input-field').forEach(input => {
+        input.addEventListener('input', () => {
+            const card = input.closest('.question-card');
+            const qid = card.dataset.qid;
+            userAnswers[qid] = input.value.trim();
+            updatePillStatus(currentIndex);
+        });
+    });
+
+    // D. Drag and Drop Keyword Chips
+    document.querySelectorAll('.token-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const card = chip.closest('.question-card');
+            const qid = card.dataset.qid;
+            const slot = card.querySelector('.drop-target');
+            const token = chip.dataset.token;
+
+            slot.innerText = token;
+            slot.classList.remove('border-dashed');
+            slot.classList.add('border-solid', 'bg-indigo-600', 'text-white');
+            userAnswers[qid] = token;
+            updatePillStatus(currentIndex);
+        });
+    });
+
+    // E. Match the Following dropdowns
+    document.querySelectorAll('.match-select').forEach(select => {
+        select.addEventListener('change', () => {
+            const card = select.closest('.question-card');
+            const qid = card.dataset.qid;
+            const pairs = {};
+            card.querySelectorAll('.match-select').forEach(sel => {
+                if (sel.value) {
+                    pairs[sel.dataset.concept] = sel.value;
+                }
+            });
+            userAnswers[qid] = pairs;
+            updatePillStatus(currentIndex);
+        });
+    });
+
+    // F. Reorderable / Sortable Items (Arrange Code, Sequence)
+    document.querySelectorAll('.sortable-list').forEach(list => {
+        const card = list.closest('.question-card');
+        const qid = card.dataset.qid;
+
+        function recordOrder() {
+            const items = Array.from(list.querySelectorAll('.block-content')).map(el => el.innerText.trim());
+            userAnswers[qid] = items;
+            updatePillStatus(currentIndex);
+        }
+
+        // Up / Down arrows
+        list.querySelectorAll('.btn-move-up').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const item = btn.closest('.sortable-item');
+                if (item.previousElementSibling) {
+                    list.insertBefore(item, item.previousElementSibling);
+                    recordOrder();
+                }
+            });
+        });
+
+        list.querySelectorAll('.btn-move-down').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const item = btn.closest('.sortable-item');
+                if (item.nextElementSibling) {
+                    list.insertBefore(item.nextElementSibling, item);
+                    recordOrder();
+                }
+            });
+        });
+
+        // HTML5 drag and drop
+        let draggedItem = null;
+        list.querySelectorAll('.sortable-item').forEach(item => {
+            item.addEventListener('dragstart', () => {
+                draggedItem = item;
+                item.classList.add('opacity-50');
+            });
+            item.addEventListener('dragend', () => {
+                draggedItem = null;
+                item.classList.remove('opacity-50');
+                recordOrder();
+            });
+            item.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const target = item;
+                if (target !== draggedItem) {
+                    const rect = target.getBoundingClientRect();
+                    const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+                    list.insertBefore(draggedItem, next && target.nextSibling || target);
+                }
+            });
+        });
+
+        // Initialize default order
+        recordOrder();
+    });
+
+    // G. Run & Test button for Debug Code & Mini Challenge
+    document.querySelectorAll('.btn-run-debug').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const qid = btn.dataset.qid;
+            const cm = codeMirrorInstances[qid];
+            const code = cm ? cm.getValue() : '';
+            const outEl = document.getElementById(`debug-output_${qid}`);
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Running...';
+            outEl.innerText = 'Executing in sandbox...';
+
+            try {
+                const resp = await fetch('/practice/run/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ code: code })
+                });
+                const data = await resp.json();
+                if (data.status === 'success') {
+                    outEl.innerText = data.stdout || '(Executed with no output)';
+                    outEl.className = 'p-3 rounded-xl bg-slate-950 border border-emerald-500/40 font-mono text-xs text-emerald-400';
+                } else {
+                    outEl.innerText = data.stderr || 'Execution error';
+                    outEl.className = 'p-3 rounded-xl bg-slate-950 border border-rose-500/40 font-mono text-xs text-rose-400';
+                }
+            } catch (err) {
+                outEl.innerText = 'Network error while testing code.';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-play text-[10px]"></i> Run & Test';
+            }
+        });
+    });
+
+    // 3. Countdown Timer Engine
+    let totalSeconds = {{ quiz.time_limit_mins }} * 60;
+    let secondsElapsed = 0;
+    const timerEl = document.getElementById('quiz-timer');
+    const timerBox = document.getElementById('timer-box');
+
+    if (totalSeconds > 0) {
+        const timerInterval = setInterval(() => {
+            secondsElapsed++;
+            const remaining = totalSeconds - secondsElapsed;
+
+            if (remaining <= 0) {
+                clearInterval(timerInterval);
+                timerEl.innerText = "00:00";
+                showToast("Time expired! Automatically submitting your quiz...", 'error');
+                submitQuiz();
+                return;
+            }
+
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+            timerEl.innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+            // Less than 60s warning glow
+            if (remaining < 60) {
+                timerBox.classList.add('border-rose-500', 'bg-rose-950/20', 'animate-pulse');
+                timerEl.classList.remove('text-amber-400');
+                timerEl.classList.add('text-rose-400');
+            }
+        }, 1000);
+    } else {
+        // Count upwards for untimed quizzes
+        setInterval(() => {
+            secondsElapsed++;
+            const mins = Math.floor(secondsElapsed / 60);
+            const secs = secondsElapsed % 60;
+            timerEl.innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }, 1000);
+    }
+
+    // 4. Submission Pipeline
+    async function submitQuiz() {
+        btnSubmit.disabled = true;
+        headerSubmitBtn.disabled = true;
+        btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+        headerSubmitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+
+        try {
+            const resp = await fetch(`/quizzes/{{ quiz.slug }}/submit/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    answers: userAnswers,
+                    time_taken_seconds: secondsElapsed
+                })
+            });
+            const data = await resp.json();
+
+            if (data.status === 'success') {
+                if (data.new_badges && data.new_badges.length > 0) {
+                    showToast(`🏆 Badge Unlocked: ${data.new_badges.join(', ')}`, 'success');
+                }
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert(`Quiz Complete!\nScore: ${data.score}/${data.total_marks} (${data.percentage}%)\nStatus: ${data.passed ? 'PASSED' : 'NEEDS PRACTICE'}`);
+                    window.location.href = "{% url 'quiz_list' %}";
+                }
+            } else {
+                showToast('Failed to record submission. Please retry.', 'error');
+                btnSubmit.disabled = false;
+                headerSubmitBtn.disabled = false;
+            }
+        } catch (err) {
+            showToast('Network error while submitting quiz.', 'error');
+            btnSubmit.disabled = false;
+            headerSubmitBtn.disabled = false;
+        }
+    }
+
+    btnSubmit.addEventListener('click', () => {
+        if (confirm('Are you ready to submit your quiz? You will not be able to change your answers.')) {
+            submitQuiz();
+        }
+    });
+
+    headerSubmitBtn.addEventListener('click', () => {
+        if (confirm('Are you ready to submit your quiz?')) {
+            submitQuiz();
+        }
+    });
+
+    // Initialize first question
+    showQuestion(0);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Interactive Python Learning Roadmap | PyMaster{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Header -->
+    <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="px-3.5 py-1 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 text-xs font-semibold uppercase tracking-wider">
+            Step-by-Step Curriculum
+        </span>
+        <h1 class="text-4xl font-extrabold text-white mt-3">Interactive Python Roadmap</h1>
+        <p class="text-slate-400 text-sm mt-2">
+            Click any section below to navigate directly to the tutorial and start interactive hands-on coding.
+        </p>
+    </div>
+
+    <!-- Visual Roadmap Grid -->
+    <div class="space-y-16">
+        <!-- TIER 1: BEGINNER -->
+        <div class="relative">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-sm">
+                    1
+                </span>
+                <div>
+                    <h2 class="text-xl font-bold text-white">Beginner Level: Fundamentals & Core Logic</h2>
+                    <p class="text-xs text-slate-400">Master Python syntax, types, control flow, functions, and collections.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for cat in beginner_cats %}
+                <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700/80 shadow-lg">
+                    <div class="flex items-center gap-2.5 mb-3">
+                        <i class="fa-solid {{ cat.icon }} text-emerald-400 text-sm"></i>
+                        <h3 class="font-bold text-white text-base">{{ cat.name }}</h3>
+                    </div>
+                    <ul class="space-y-1.5 text-xs text-slate-300">
+                        {% for tut in cat.tutorials.all %}
+                        <li>
+                            <a href="{% url 'tutorial_seo_detail' slug=tut.slug %}" 
+                               class="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-slate-700/60 transition group">
+                                <span class="group-hover:text-brand-300 transition">{{ tut.title }}</span>
+                                <i class="fa-solid fa-chevron-right text-[9px] text-slate-500 group-hover:text-brand-400 group-hover:translate-x-0.5 transition-transform"></i>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Connector Arrow -->
+        <div class="flex justify-center text-slate-600 text-2xl">
+            <i class="fa-solid fa-arrow-down-long animate-bounce"></i>
+        </div>
+
+        <!-- TIER 2: INTERMEDIATE -->
+        <div class="relative">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-500/40 text-blue-400 flex items-center justify-center font-bold text-sm">
+                    2
+                </span>
+                <div>
+                    <h2 class="text-xl font-bold text-white">Intermediate Level: OOP, Architecture & Web APIs</h2>
+                    <p class="text-xs text-slate-400">Comprehensions, exceptions, file I/O, OOP classes, generators, and REST APIs.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for cat in intermediate_cats %}
+                <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700/80 shadow-lg">
+                    <div class="flex items-center gap-2.5 mb-3">
+                        <i class="fa-solid {{ cat.icon }} text-blue-400 text-sm"></i>
+                        <h3 class="font-bold text-white text-base">{{ cat.name }}</h3>
+                    </div>
+                    <ul class="space-y-1.5 text-xs text-slate-300">
+                        {% for tut in cat.tutorials.all %}
+                        <li>
+                            <a href="{% url 'tutorial_seo_detail' slug=tut.slug %}" 
+                               class="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-slate-700/60 transition group">
+                                <span class="group-hover:text-blue-300 transition">{{ tut.title }}</span>
+                                <i class="fa-solid fa-chevron-right text-[9px] text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 transition-transform"></i>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Connector Arrow -->
+        <div class="flex justify-center text-slate-600 text-2xl">
+            <i class="fa-solid fa-arrow-down-long animate-bounce"></i>
+        </div>
+
+        <!-- TIER 3: ADVANCED -->
+        <div class="relative">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-400 flex items-center justify-center font-bold text-sm">
+                    3
+                </span>
+                <div>
+                    <h2 class="text-xl font-bold text-white">Advanced Level: Production Engineering & Scale</h2>
+                    <p class="text-xs text-slate-400">Concurrency, Asyncio, Dataclasses, Pytest, Logging, and Full-Stack Django.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for cat in advanced_cats %}
+                <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700/80 shadow-lg">
+                    <div class="flex items-center gap-2.5 mb-3">
+                        <i class="fa-solid {{ cat.icon }} text-purple-400 text-sm"></i>
+                        <h3 class="font-bold text-white text-base">{{ cat.name }}</h3>
+                    </div>
+                    <ul class="space-y-1.5 text-xs text-slate-300">
+                        {% for tut in cat.tutorials.all %}
+                        <li>
+                            <a href="{% url 'tutorial_seo_detail' slug=tut.slug %}" 
+                               class="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-slate-700/60 transition group">
+                                <span class="group-hover:text-purple-300 transition">{{ tut.title }}</span>
+                                <i class="fa-solid fa-chevron-right text-[9px] text-slate-500 group-hover:text-purple-400 group-hover:translate-x-0.5 transition-transform"></i>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

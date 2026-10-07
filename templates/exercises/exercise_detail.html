@@ -1,0 +1,295 @@
+{% extends 'base.html' %}
+
+{% block title %}Solve: {{ exercise.title }} | PyMaster Exercises{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Top Breadcrumb & Status -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-slate-800 gap-2">
+        <div class="flex items-center gap-2 text-xs">
+            <a href="{% url 'exercise_list' %}" class="text-slate-400 hover:text-white transition flex items-center gap-1">
+                <i class="fa-solid fa-arrow-left"></i> Exercises
+            </a>
+            <span class="text-slate-600">/</span>
+            <span class="text-slate-300 font-semibold">{{ exercise.title }}</span>
+        </div>
+
+        <div class="flex items-center gap-3 text-xs">
+            <span class="px-2.5 py-0.5 rounded-full font-semibold uppercase
+                {% if exercise.difficulty == 'easy' %} bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                {% elif exercise.difficulty == 'medium' %} bg-amber-500/10 text-amber-400 border border-amber-500/20
+                {% else %} bg-rose-500/10 text-rose-400 border border-rose-500/20 {% endif %}">
+                {{ exercise.get_difficulty_display }}
+            </span>
+            <span class="text-amber-400 font-bold"><i class="fa-solid fa-bolt mr-1"></i>{{ exercise.points }} XP</span>
+            {% if is_solved %}
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold flex items-center gap-1 border border-emerald-500/30">
+                <i class="fa-solid fa-check"></i> Solved
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Split Screen IDE Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left Panel: Problem Statement & Hints -->
+        <div class="lg:col-span-5 space-y-6 max-h-[85vh] overflow-y-auto pr-1">
+            
+            <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-4">
+                <h1 class="text-2xl font-bold text-white">{{ exercise.title }}</h1>
+                <div class="text-slate-300 text-sm leading-relaxed prose prose-invert max-w-none">
+                    {{ exercise.description|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Example Input / Output -->
+            {% if exercise.example_input or exercise.example_output %}
+            <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-code-compare text-brand-400"></i> Example
+                </h3>
+                {% if exercise.example_input %}
+                <div>
+                    <span class="text-[11px] font-mono text-slate-400">Input / Scenario:</span>
+                    <pre class="bg-slate-950 p-2.5 rounded-lg text-xs font-mono text-slate-200 mt-1 border border-slate-800">{{ exercise.example_input }}</pre>
+                </div>
+                {% endif %}
+                {% if exercise.example_output %}
+                <div>
+                    <span class="text-[11px] font-mono text-slate-400">Expected Output:</span>
+                    <pre class="bg-slate-950 p-2.5 rounded-lg text-xs font-mono text-emerald-400 mt-1 border border-slate-800">{{ exercise.example_output }}</pre>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Hints Accordion -->
+            {% if exercise.hints %}
+            <details class="group p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 [&_summary::-webkit-details-marker]:hidden cursor-pointer">
+                <summary class="flex items-center justify-between text-xs font-bold text-amber-400 uppercase tracking-wider">
+                    <span class="flex items-center gap-1.5"><i class="fa-regular fa-lightbulb"></i> Need a Hint?</span>
+                    <i class="fa-solid fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i>
+                </summary>
+                <div class="mt-3 text-xs text-slate-300 leading-relaxed border-t border-slate-700/60 pt-3">
+                    {{ exercise.hints }}
+                </div>
+            </details>
+            {% endif %}
+
+            <!-- Explanation & Solution (unlocked if solved) -->
+            <div id="solution-container" class="{% if not is_solved %}hidden{% endif %} p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-3">
+                <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-check"></i> Explanation & Solution
+                </h3>
+                <p id="solution-explanation" class="text-xs text-slate-300 leading-relaxed">
+                    {{ exercise.explanation }}
+                </p>
+                <details class="text-xs">
+                    <summary class="text-brand-400 hover:text-brand-300 font-semibold cursor-pointer mb-2">View Reference Solution</summary>
+                    <pre id="solution-code" class="p-3 rounded-lg bg-slate-950 font-mono text-xs text-slate-200 border border-slate-800 overflow-x-auto">{{ exercise.solution_code }}</pre>
+                </details>
+            </div>
+
+        </div>
+
+        <!-- Right Panel: Code Editor & Test Results -->
+        <div class="lg:col-span-7 space-y-4">
+            
+            <!-- Editor Card -->
+            <div class="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-2xl">
+                <!-- Editor Toolbar -->
+                <div class="flex items-center justify-between px-4 py-3 bg-slate-800/90 border-b border-slate-700">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-brands fa-python text-brand-400 text-sm"></i>
+                        <span class="font-mono text-xs text-slate-300">solution.py</span>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button id="reset-code-btn" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-700 transition">
+                            <i class="fa-solid fa-arrow-rotate-left mr-1"></i> Reset
+                        </button>
+                        <button id="run-tests-btn" class="px-3.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-play text-[10px]"></i>
+                            <span>Run Tests</span>
+                        </button>
+                        <button id="submit-code-btn" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-paper-plane text-[10px]"></i>
+                            <span>Submit Solution</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CodeMirror Editor Area -->
+                <div class="p-2 bg-slate-950">
+                    <textarea id="exercise-editor">{{ initial_code }}</textarea>
+                </div>
+            </div>
+
+            <!-- Test Results Panel -->
+            <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-vial-circle-check text-brand-400"></i> Test Case Results
+                    </h3>
+                    <div id="test-summary-badge" class="text-xs font-mono text-slate-500">
+                        Ready to evaluate
+                    </div>
+                </div>
+
+                <!-- Test Cases Output Container -->
+                <div id="test-cases-container" class="space-y-3">
+                    <div class="text-center py-8 text-slate-500 text-xs font-mono">
+                        Click 'Run Tests' to test sample cases, or 'Submit Solution' to test all test cases.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const starterCode = `{{ exercise.starter_code|escapejs }}`;
+    const textarea = document.getElementById('exercise-editor');
+    const editor = CodeMirror.fromTextArea(textarea, {
+        mode: 'python',
+        theme: 'dracula',
+        lineNumbers: true,
+        matchBrackets: true,
+        autoCloseBrackets: true,
+        indentUnit: 4,
+        tabSize: 4,
+        indentWithTabs: false,
+    });
+    editor.setSize('100%', 320);
+
+    const resetBtn = document.getElementById('reset-code-btn');
+    const runBtn = document.getElementById('run-tests-btn');
+    const submitBtn = document.getElementById('submit-code-btn');
+    const resultsContainer = document.getElementById('test-cases-container');
+    const summaryBadge = document.getElementById('test-summary-badge');
+    const solutionContainer = document.getElementById('solution-container');
+    const solutionExp = document.getElementById('solution-explanation');
+    const solutionCode = document.getElementById('solution-code');
+
+    resetBtn.addEventListener('click', () => {
+        editor.setValue(starterCode);
+        showToast('Starter code restored', 'info');
+    });
+
+    // Helper to render test case results
+    function renderResults(results, isSubmit = false, allPassed = false, passedCount = 0, totalCount = 0, execTime = 0) {
+        if (!results || results.length === 0) return;
+
+        summaryBadge.innerHTML = allPassed 
+            ? `<span class="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 font-bold">Passed ${passedCount}/${totalCount} (${execTime}s) ✓</span>`
+            : `<span class="px-2.5 py-1 rounded-md bg-rose-500/20 text-rose-400 font-bold">Failed ${totalCount - passedCount}/${totalCount} Cases ✗</span>`;
+
+        resultsContainer.innerHTML = results.map(tc => {
+            const statusClass = tc.passed 
+                ? 'border-emerald-500/40 bg-emerald-950/20 text-emerald-300' 
+                : 'border-rose-500/40 bg-rose-950/20 text-rose-300';
+            const badge = tc.passed
+                ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">PASSED ✓</span>'
+                : '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400">FAILED ✗</span>';
+
+            return `
+            <div class="p-3.5 rounded-xl border ${statusClass} space-y-2 text-xs font-mono">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-white">Test Case #${tc.test_num} ${tc.is_sample ? '(Sample)' : '(Hidden)'}</span>
+                    ${badge}
+                </div>
+                ${tc.input ? `<div><span class="text-slate-500">Input:</span> <span class="text-slate-200">${tc.input}</span></div>` : ''}
+                <div><span class="text-slate-500">Expected:</span> <span class="text-slate-200">${tc.expected || '(no output)'}</span></div>
+                <div><span class="text-slate-500">Actual:</span> <span class="${tc.passed ? 'text-emerald-400' : 'text-rose-400'}">${tc.actual || '(no output)'}</span></div>
+                ${tc.stderr ? `<div class="p-2 rounded bg-rose-950/40 text-rose-300 text-[11px]">${tc.stderr}</div>` : ''}
+            </div>
+            `;
+        }).join('');
+    }
+
+    // 1. Run Sample Tests
+    runBtn.addEventListener('click', async () => {
+        const code = editor.getValue();
+        runBtn.disabled = true;
+        runBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[10px]"></i> Running...';
+        summaryBadge.innerText = 'Evaluating sample test cases...';
+
+        try {
+            const resp = await fetch(`/exercises/{{ exercise.slug }}/run/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ code: code })
+            });
+            const data = await resp.json();
+            if (data.status === 'success') {
+                const passed = data.results.filter(r => r.passed).length;
+                renderResults(data.results, false, data.all_passed, passed, data.results.length, 0);
+                if (data.all_passed) {
+                    showToast('Sample tests passed! Ready to submit.', 'success');
+                }
+            } else {
+                summaryBadge.innerHTML = `<span class="text-rose-400 font-bold">${data.message || 'Error running tests'}</span>`;
+            }
+        } catch (err) {
+            summaryBadge.innerText = 'Network error while running tests.';
+        } finally {
+            runBtn.disabled = false;
+            runBtn.innerHTML = '<i class="fa-solid fa-play text-[10px]"></i> Run Tests';
+        }
+    });
+
+    // 2. Submit Solution
+    submitBtn.addEventListener('click', async () => {
+        const code = editor.getValue();
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[10px]"></i> Submitting...';
+        summaryBadge.innerText = 'Testing against all test cases...';
+
+        try {
+            const resp = await fetch(`/exercises/{{ exercise.slug }}/submit/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ code: code })
+            });
+            const data = await resp.json();
+
+            if (data.status === 'success') {
+                renderResults(data.results, true, data.all_passed, data.passed_count, data.total_count, data.execution_time);
+                if (data.all_passed) {
+                    showToast(`🎉 Congratulations! Challenge Solved! +${data.points_awarded || {{ exercise.points }}} XP`, 'success');
+                    if (data.new_badges && data.new_badges.length > 0) {
+                        showToast(`🏆 Badge Unlocked: ${data.new_badges.join(', ')}`, 'success');
+                    }
+                    if (data.explanation) {
+                        solutionExp.innerText = data.explanation;
+                        if (data.solution_code) solutionCode.innerText = data.solution_code;
+                        solutionContainer.classList.remove('hidden');
+                    }
+                } else {
+                    showToast(`Some test cases failed (${data.passed_count}/${data.total_count} passed). Check errors and retry!`, 'error');
+                }
+            } else {
+                summaryBadge.innerHTML = `<span class="text-rose-400 font-bold">${data.message || 'Submission error'}</span>`;
+            }
+        } catch (err) {
+            summaryBadge.innerText = 'Network error while submitting code.';
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane text-[10px]"></i> Submit Solution';
+        }
+    });
+});
+</script>
+{% endblock %}

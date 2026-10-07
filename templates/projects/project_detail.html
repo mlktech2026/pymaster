@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ project.title }} - Python Project Guide | PyMaster{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-xs text-slate-400">
+        <a href="{% url 'project_list' %}" class="hover:text-white transition flex items-center gap-1">
+            <i class="fa-solid fa-arrow-left"></i> Projects
+        </a>
+        <span>/</span>
+        <span class="text-slate-300 font-semibold">{{ project.title }}</span>
+    </div>
+
+    <!-- Project Header -->
+    <div class="p-8 rounded-3xl bg-slate-800/80 border border-slate-700/80 shadow-2xl space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide
+                {% if project.level == 'beginner' %} bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                {% elif project.level == 'intermediate' %} bg-blue-500/10 text-blue-400 border border-blue-500/20
+                {% else %} bg-purple-500/10 text-purple-400 border border-purple-500/20 {% endif %}">
+                {{ project.get_level_display }} Level
+            </span>
+            <span class="text-xs text-slate-400 font-mono">Portfolio Project</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-white">{{ project.title }}</h1>
+        <p class="text-sm sm:text-base text-slate-300 leading-relaxed">{{ project.description }}</p>
+
+        <!-- Concepts Used -->
+        <div class="pt-4 border-t border-slate-700/80">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 font-mono">Core Concepts Demonstrated:</h4>
+            <div class="flex flex-wrap gap-2">
+                {% for c in project.concepts_list %}
+                <span class="px-3 py-1 rounded-lg bg-slate-900 border border-slate-700 text-xs font-mono text-brand-300">
+                    {{ c }}
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Requirements Card -->
+    <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+        <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-clipboard-check text-emerald-400"></i> Project Prerequisites & Requirements
+        </h3>
+        <div class="text-xs text-slate-300 leading-relaxed font-mono whitespace-pre-wrap bg-slate-950 p-4 rounded-xl border border-slate-850">
+{{ project.requirements }}
+        </div>
+    </div>
+
+    <!-- Step-by-Step Guide -->
+    <div class="p-8 rounded-2xl bg-slate-800/60 border border-slate-700/80 space-y-4">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-stairs text-brand-400"></i>
+            <span>Step-by-Step Architecture Guide</span>
+        </h2>
+        <div class="text-slate-300 text-sm leading-relaxed prose prose-invert max-w-none">
+            {{ project.step_by_step_guide|linebreaks }}
+        </div>
+    </div>
+
+    <!-- Complete Production Source Code -->
+    <div class="terminal-window shadow-2xl">
+        <div class="flex items-center justify-between px-5 py-3.5 bg-slate-800 border-b border-slate-700 text-xs">
+            <div class="flex items-center gap-2 font-mono text-slate-300">
+                <i class="fa-brands fa-python text-brand-400 text-sm"></i>
+                <span>Complete Runnable Source Code</span>
+            </div>
+            <button onclick="copyToClipboard(`{{ project.source_code|escapejs }}`, this)" 
+                    class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold text-xs transition flex items-center gap-1.5">
+                <i class="fa-regular fa-copy"></i>
+                <span>Copy Code</span>
+            </button>
+        </div>
+        <pre class="p-5 bg-slate-950 font-mono text-xs sm:text-sm text-slate-200 overflow-x-auto leading-relaxed">{{ project.source_code }}</pre>
+    </div>
+
+    <!-- Take-It-Further Challenges -->
+    {% if project.challenges %}
+    <div class="p-6 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-2">
+        <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+            <i class="fa-solid fa-trophy"></i> Next Step Challenges & Extensions
+        </h3>
+        <div class="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">
+{{ project.challenges }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Back to Projects -->
+    <div class="text-center pt-4">
+        <a href="{% url 'project_list' %}" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-700 transition">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Browse More Projects</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

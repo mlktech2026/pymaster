@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}My Quiz Performance Dashboard | PyMaster{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    
+    <!-- Top Welcome & Metric Strip -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-slate-800 gap-4">
+        <div>
+            <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-400">
+                <i class="fa-solid fa-chart-line"></i> Analytics & Assessment Records
+            </div>
+            <h1 class="text-3xl font-extrabold text-white mt-1">Quiz Performance Dashboard</h1>
+            <p class="text-xs text-slate-400 mt-1">Track your accuracy, exam history, and topic strengths across all Python quizzes.</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="{% url 'quiz_generate' %}" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Generate Custom Quiz</span>
+            </a>
+            <a href="{% url 'quiz_list' %}" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs border border-slate-700 transition">
+                Browse Catalog
+            </a>
+        </div>
+    </div>
+
+    <!-- 6 Performance Metrics Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-center space-y-1">
+            <span class="text-[10px] text-slate-400 font-mono uppercase block">Total Quizzes</span>
+            <strong class="text-2xl font-black text-white">{{ total_quizzes }}</strong>
+            <span class="text-[10px] text-slate-500 block">Completed</span>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-center space-y-1">
+            <span class="text-[10px] text-slate-400 font-mono uppercase block">Average Score</span>
+            <strong class="text-2xl font-black text-indigo-400">{{ avg_score }}%</strong>
+            <span class="text-[10px] text-slate-500 block">Across all quizzes</span>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-center space-y-1">
+            <span class="text-[10px] text-slate-400 font-mono uppercase block">Best Score</span>
+            <strong class="text-2xl font-black text-emerald-400">{{ best_score }}%</strong>
+            <span class="text-[10px] text-slate-500 block">Peak performance</span>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-center space-y-1">
+            <span class="text-[10px] text-slate-400 font-mono uppercase block">Questions Solved</span>
+            <strong class="text-2xl font-black text-amber-400">{{ questions_answered }}</strong>
+            <span class="text-[10px] text-slate-500 block">Evaluated</span>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-center space-y-1">
+            <span class="text-[10px] text-slate-400 font-mono uppercase block">Correct Answers</span>
+            <strong class="text-2xl font-black text-emerald-400">{{ correct_answers }}</strong>
+            <span class="text-[10px] text-slate-500 block">{{ accuracy_pct }}% Accuracy</span>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-center space-y-1">
+            <span class="text-[10px] text-slate-400 font-mono uppercase block">Quiz Streak</span>
+            <strong class="text-2xl font-black text-rose-400">{{ quiz_streak }} Days</strong>
+            <span class="text-[10px] text-slate-500 block">Active Habit</span>
+        </div>
+    </div>
+
+    <!-- Visual Performance Score Trend Chart -->
+    <div class="p-6 sm:p-8 rounded-3xl bg-slate-800/80 border border-slate-700/80 space-y-4 shadow-xl">
+        <div class="flex items-center justify-between">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-chart-column text-indigo-400"></i>
+                <span>Recent Score Trends</span>
+            </h3>
+            <span class="text-xs text-slate-400 font-mono">Last 10 Attempts</span>
+        </div>
+
+        {% if chart_data %}
+        <div class="h-48 pt-6 flex items-end gap-3 sm:gap-6 border-b border-slate-700 pb-2">
+            {% for item in chart_data %}
+            <div class="flex-1 flex flex-col items-center gap-2 group relative">
+                <!-- Hover Tooltip -->
+                <div class="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-950 px-2.5 py-1 rounded-md text-[10px] font-mono text-white pointer-events-none whitespace-nowrap shadow-lg z-10 border border-slate-800">
+                    {{ item.title }}: {{ item.score }}%
+                </div>
+                <!-- Score Bar -->
+                <div class="w-full rounded-t-xl bg-gradient-to-t {% if item.score >= 70 %}from-emerald-600 to-indigo-500{% else %}from-rose-600 to-amber-500{% endif %} transition-all duration-500 group-hover:brightness-125"
+                     style="height: {{ item.score }}%;"></div>
+                <span class="text-[10px] font-mono text-slate-400 truncate max-w-[60px]">{{ item.date }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-12 text-xs text-slate-500">
+            No quiz attempts recorded yet. Start a quiz to populate your performance trend graph!
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Attempt History Table -->
+    <div class="p-6 sm:p-8 rounded-3xl bg-slate-800/80 border border-slate-700/80 space-y-4 shadow-xl">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-700">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left text-brand-400"></i>
+                <span>Comprehensive Attempt History</span>
+            </h3>
+            <span class="text-xs text-slate-400 font-mono">{{ attempts.count }} Records</span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+                <thead>
+                    <tr class="text-slate-400 border-b border-slate-700/80">
+                        <th class="py-3 px-3">Date</th>
+                        <th class="py-3 px-3">Quiz Title</th>
+                        <th class="py-3 px-3">Score</th>
+                        <th class="py-3 px-3">Percentage</th>
+                        <th class="py-3 px-3">Grade</th>
+                        <th class="py-3 px-3">Status</th>
+                        <th class="py-3 px-3 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 text-slate-200">
+                    {% for att in attempts %}
+                    <tr class="hover:bg-slate-900/50 transition">
+                        <td class="py-3 px-3 text-slate-400 whitespace-nowrap">{{ att.completed_at|date:"M d, Y" }}</td>
+                        <td class="py-3 px-3 font-bold text-white">{{ att.quiz.title }}</td>
+                        <td class="py-3 px-3">{{ att.score }} / {{ att.total_marks }}</td>
+                        <td class="py-3 px-3 font-bold {% if att.passed %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                            {{ att.percentage }}%
+                        </td>
+                        <td class="py-3 px-3 font-bold text-amber-400">{{ att.grade }}</td>
+                        <td class="py-3 px-3">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold
+                                {% if att.passed %} bg-emerald-500/20 text-emerald-400 {% else %} bg-rose-500/20 text-rose-400 {% endif %}">
+                                {% if att.passed %}PASSED{% else %}FAILED{% endif %}
+                            </span>
+                        </td>
+                        <td class="py-3 px-3 text-right whitespace-nowrap">
+                            <a href="{% url 'quiz_result' slug=att.quiz.slug attempt_id=att.id %}" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold text-[11px] transition">
+                                Review Answers <i class="fa-solid fa-chevron-right text-[9px] ml-1"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="py-8 text-center text-slate-500 text-xs">
+                            No quiz attempts found. <a href="{% url 'quiz_list' %}" class="text-indigo-400 underline ml-1">Take your first quiz now!</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

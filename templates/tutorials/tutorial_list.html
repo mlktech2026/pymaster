@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Python Tutorials Catalog (66 Lessons) | PyMaster{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+        <span class="px-3.5 py-1 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 text-xs font-semibold uppercase tracking-wider">
+            Curated Curriculum
+        </span>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-white mt-3">Structured Python Tutorials</h1>
+        <p class="text-slate-400 text-sm mt-2">
+            66 comprehensive, step-by-step lessons covering beginner syntax, intermediate OOP, and advanced backend engineering.
+        </p>
+
+        {% if user.is_authenticated %}
+        <div class="mt-4 max-w-md mx-auto p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between text-xs">
+            <span class="text-slate-300 font-medium">Your Progress: {{ completed_count }} / {{ total_tutorials }} Completed</span>
+            <span class="font-bold text-emerald-400">
+                {% widthratio completed_count total_tutorials 100 %}%
+            </span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- TIER 1: BEGINNER -->
+    <div class="mb-14">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs border border-emerald-500/30">
+                1
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-white">Beginner Level (28 Topics)</h2>
+                <p class="text-xs text-slate-400">Syntax, variables, numbers, strings, conditions, loops, and functions.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for cat in beginner_cats %}
+            <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-2.5 mb-3 text-emerald-400">
+                        <i class="fa-solid {{ cat.icon }} text-base"></i>
+                        <h3 class="font-bold text-white text-base">{{ cat.name }}</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-4">{{ cat.description }}</p>
+                    <ul class="space-y-2 text-xs">
+                        {% for tut in cat.tutorials.all %}
+                        <li>
+                            <a href="{% url 'tutorial_seo_detail' slug=tut.slug %}" 
+                               class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-700/60 transition group text-slate-300 hover:text-white">
+                                <span class="group-hover:text-emerald-300 transition line-clamp-1">{{ tut.title }}</span>
+                                {% if tut.id in completed_ids %}
+                                    <i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-chevron-right text-[9px] text-slate-500 group-hover:text-emerald-400"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- TIER 2: INTERMEDIATE -->
+    <div class="mb-14">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs border border-blue-500/30">
+                2
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-white">Intermediate Level (23 Topics)</h2>
+                <p class="text-xs text-slate-400">Comprehensions, exceptions, file handling, OOP, decorators, and APIs.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for cat in intermediate_cats %}
+            <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-2.5 mb-3 text-blue-400">
+                        <i class="fa-solid {{ cat.icon }} text-base"></i>
+                        <h3 class="font-bold text-white text-base">{{ cat.name }}</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-4">{{ cat.description }}</p>
+                    <ul class="space-y-2 text-xs">
+                        {% for tut in cat.tutorials.all %}
+                        <li>
+                            <a href="{% url 'tutorial_seo_detail' slug=tut.slug %}" 
+                               class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-700/60 transition group text-slate-300 hover:text-white">
+                                <span class="group-hover:text-blue-300 transition line-clamp-1">{{ tut.title }}</span>
+                                {% if tut.id in completed_ids %}
+                                    <i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-chevron-right text-[9px] text-slate-500 group-hover:text-blue-400"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- TIER 3: ADVANCED -->
+    <div>
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs border border-purple-500/30">
+                3
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-white">Advanced Level (15 Topics)</h2>
+                <p class="text-xs text-slate-400">Advanced OOP, Asyncio, Multiprocessing, Dataclasses, Pytest, and Django.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for cat in advanced_cats %}
+            <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-2.5 mb-3 text-purple-400">
+                        <i class="fa-solid {{ cat.icon }} text-base"></i>
+                        <h3 class="font-bold text-white text-base">{{ cat.name }}</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-4">{{ cat.description }}</p>
+                    <ul class="space-y-2 text-xs">
+                        {% for tut in cat.tutorials.all %}
+                        <li>
+                            <a href="{% url 'tutorial_seo_detail' slug=tut.slug %}" 
+                               class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-700/60 transition group text-slate-300 hover:text-white">
+                                <span class="group-hover:text-purple-300 transition line-clamp-1">{{ tut.title }}</span>
+                                {% if tut.id in completed_ids %}
+                                    <i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-chevron-right text-[9px] text-slate-500 group-hover:text-purple-400"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
