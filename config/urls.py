@@ -18,8 +18,14 @@ urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
 
+    # Dedicated Admin Visual Analytics & Video Tutorial Management Panel
+    path('admin-panel/', core_views.admin_dashboard_view, name='admin_panel'),
+    path('admin-panel/upload-video/', core_views.admin_upload_video_view, name='admin_upload_video'),
+    path('admin-panel/delete-video/<int:pk>/', core_views.admin_delete_video_view, name='admin_delete_video'),
+
     # Core & SEO pages
     path('', core_views.home_view, name='home'),
+    path('videos/', tutorials_views.video_tutorial_list_view, name='videos'),
     path('roadmap/', core_views.roadmap_view, name='roadmap'),
     path('search/', core_views.search_view, name='search'),
     path('robots.txt', core_views.robots_txt_view, name='robots_txt'),

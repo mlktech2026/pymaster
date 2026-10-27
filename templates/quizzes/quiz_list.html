@@ -7,53 +7,58 @@
     
     <!-- Hero / Header Section -->
     <div class="text-center max-w-3xl mx-auto space-y-4">
-        <span class="px-3.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-semibold uppercase tracking-wider">
-            Interactive Assessment Platform
-        </span>
-        <h1 class="text-3xl sm:text-4xl font-extrabold text-white">Modern Python Quiz System</h1>
-        <p class="text-slate-400 text-sm max-w-2xl mx-auto leading-relaxed">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-semibold uppercase tracking-wider">
+            <i class="fa-solid fa-circle-question text-indigo-600 animate-pulse"></i>
+            <span>Interactive Assessment Platform</span>
+        </div>
+        
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 font-heading tracking-tight">
+            Modern Python Quiz System
+        </h1>
+        
+        <p class="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-content">
             Test your Python understanding with 20 distinct question formats: drag-and-drop code, interactive debugging, output predictions, concept matching, and scenario-based challenges.
         </p>
 
         <!-- Feature Pills -->
         <div class="flex flex-wrap items-center justify-center gap-3 pt-2 text-xs">
-            <span class="px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                <i class="fa-solid fa-layer-group text-indigo-400 mr-1.5"></i> 20 Question Types
+            <span class="px-3.5 py-1.5 rounded-full bg-white text-slate-700 border border-slate-200 shadow-2xs font-medium flex items-center gap-1.5">
+                <i class="fa-solid fa-layer-group text-indigo-600"></i> 20 Question Types
             </span>
-            <span class="px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                <i class="fa-solid fa-database text-emerald-400 mr-1.5"></i> {{ total_questions_in_db }}+ Questions Pool
+            <span class="px-3.5 py-1.5 rounded-full bg-white text-slate-700 border border-slate-200 shadow-2xs font-medium flex items-center gap-1.5">
+                <i class="fa-solid fa-database text-emerald-600"></i> {{ total_questions_in_db }}+ Questions Pool
             </span>
-            <span class="px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                <i class="fa-solid fa-shuffle text-amber-400 mr-1.5"></i> Dynamic Random Generator
+            <span class="px-3.5 py-1.5 rounded-full bg-white text-slate-700 border border-slate-200 shadow-2xs font-medium flex items-center gap-1.5">
+                <i class="fa-solid fa-shuffle text-amber-500"></i> Dynamic Random Generator
             </span>
-            <span class="px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                <i class="fa-solid fa-stopwatch text-rose-400 mr-1.5"></i> Configurable Timers
+            <span class="px-3.5 py-1.5 rounded-full bg-white text-slate-700 border border-slate-200 shadow-2xs font-medium flex items-center gap-1.5">
+                <i class="fa-solid fa-stopwatch text-rose-500"></i> Configurable Timers
             </span>
         </div>
     </div>
 
     <!-- Random Quiz Generator Banner Callout -->
-    <div class="p-8 rounded-3xl bg-gradient-to-r from-indigo-900/50 via-slate-800 to-slate-800 border border-indigo-500/30 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="p-8 rounded-3xl bg-gradient-to-r from-blue-50 via-indigo-50/70 to-purple-50 border border-indigo-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
         <div class="space-y-2 text-center md:text-left">
-            <div class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-400">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> Build Custom Challenge
+            <div class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-700 bg-white px-2.5 py-1 rounded-full border border-indigo-100 shadow-2xs">
+                <i class="fa-solid fa-wand-magic-sparkles text-indigo-600"></i> Build Custom Challenge
             </div>
-            <h2 class="text-2xl font-bold text-white">Random Quiz Generator</h2>
-            <p class="text-xs text-slate-300 max-w-xl leading-relaxed">
+            <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 font-heading">Random Quiz Generator</h2>
+            <p class="text-xs sm:text-sm text-slate-600 max-w-xl leading-relaxed font-content">
                 Want a custom quiz? Select your preferred Python topics, difficulty level, number of questions, and countdown timer. Our algorithm generates a randomized assessment for you.
             </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3">
+        <div class="flex flex-wrap items-center gap-3 flex-shrink-0">
             <a href="{% url 'quiz_generate' %}" 
-               class="px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-xl shadow-indigo-600/30 transition transform hover:-translate-y-0.5 flex items-center gap-2">
+               class="px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-600/25 transition transform hover:-translate-y-0.5 flex items-center gap-2">
                 <i class="fa-solid fa-sliders"></i>
                 <span>Configure & Generate Quiz</span>
             </a>
             {% if user.is_authenticated %}
             <a href="{% url 'quiz_dashboard' %}" 
-               class="px-5 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold text-xs border border-slate-700 transition flex items-center gap-2">
-                <i class="fa-solid fa-chart-line text-emerald-400"></i>
+               class="px-5 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 hover:text-slate-900 font-semibold text-xs sm:text-sm border border-slate-200 shadow-xs transition flex items-center gap-2">
+                <i class="fa-solid fa-chart-line text-emerald-600"></i>
                 <span>My Performance</span>
             </a>
             {% endif %}
@@ -64,55 +69,68 @@
     <div class="space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-                <h3 class="text-xl font-bold text-white">Curated Assessment Challenges</h3>
-                <p class="text-xs text-slate-400 mt-1">Pre-built multi-format quizzes tested and tuned for mastery.</p>
+                <h3 class="text-xl sm:text-2xl font-bold text-slate-900 font-heading">Curated Assessment Challenges</h3>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1 font-content">Pre-built multi-format quizzes tested and tuned for mastery.</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for item in quizzes_data %}
-            <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 hover:border-indigo-500/50 transition hover-lift flex flex-col justify-between">
+            <div class="p-6 rounded-2xl bg-white border border-slate-200 hover:border-indigo-300 transition-all duration-200 hover:-translate-y-1 shadow-xs hover:shadow-md flex flex-col justify-between group">
                 <div>
                     <div class="flex items-center justify-between mb-4">
                         <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase
-                            {% if item.quiz.difficulty == 'beginner' %} bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
-                            {% elif item.quiz.difficulty == 'intermediate' %} bg-blue-500/10 text-blue-400 border border-blue-500/20
-                            {% else %} bg-purple-500/10 text-purple-400 border border-purple-500/20 {% endif %}">
+                            {% if item.quiz.difficulty == 'beginner' %} bg-emerald-50 text-emerald-700 border border-emerald-200
+                            {% elif item.quiz.difficulty == 'intermediate' %} bg-blue-50 text-brand-700 border border-blue-200
+                            {% else %} bg-purple-50 text-purple-700 border border-purple-200 {% endif %}">
                             {{ item.quiz.get_difficulty_display }}
                         </span>
 
                         {% if item.user_attempt %}
                         <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold
-                            {% if item.user_attempt.passed %} bg-emerald-500/20 text-emerald-300 border border-emerald-500/30
-                            {% else %} bg-amber-500/20 text-amber-300 border border-amber-500/30 {% endif %}">
+                            {% if item.user_attempt.passed %} bg-emerald-50 text-emerald-700 border border-emerald-200
+                            {% else %} bg-amber-50 text-amber-700 border border-amber-200 {% endif %}">
                             Best: {{ item.user_attempt.percentage }}% ({{ item.user_attempt.grade }})
                         </span>
                         {% endif %}
                     </div>
 
-                    <h3 class="text-xl font-bold text-white mb-2">{{ item.quiz.title }}</h3>
-                    <p class="text-xs text-slate-400 mb-6 leading-relaxed">{{ item.quiz.description }}</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition font-heading">{{ item.quiz.title }}</h3>
+                    <p class="text-xs text-slate-600 mb-6 leading-relaxed font-content line-clamp-3">{{ item.quiz.description }}</p>
                 </div>
 
-                <div class="space-y-4 pt-4 border-t border-slate-700/80">
+                <div class="space-y-4 pt-4 border-t border-slate-100">
                     <div class="grid grid-cols-3 gap-2 text-center text-xs">
-                        <div class="p-2 rounded-lg bg-slate-900 border border-slate-800">
-                            <span class="text-slate-400 block text-[10px]">Questions</span>
-                            <strong class="text-white">{{ item.question_count }}</strong>
+                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                            <span class="text-slate-500 block text-[10px] font-medium">Questions</span>
+                            <strong class="text-slate-900 text-sm font-heading">{{ item.question_count }}</strong>
                         </div>
-                        <div class="p-2 rounded-lg bg-slate-900 border border-slate-800">
-                            <span class="text-slate-400 block text-[10px]">Timer</span>
-                            <strong class="text-white">{{ item.quiz.time_limit_mins }}m</strong>
+                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                            <span class="text-slate-500 block text-[10px] font-medium">Timer</span>
+                            <strong class="text-slate-900 text-sm font-heading">{{ item.quiz.time_limit_mins }}m</strong>
                         </div>
-                        <div class="p-2 rounded-lg bg-slate-900 border border-slate-800">
-                            <span class="text-slate-400 block text-[10px]">Pass Mark</span>
-                            <strong class="text-white">{{ item.quiz.pass_percentage }}%</strong>
+                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                            <span class="text-slate-500 block text-[10px] font-medium">Pass Mark</span>
+                            <strong class="text-slate-900 text-sm font-heading">{{ item.quiz.pass_percentage }}%</strong>
                         </div>
                     </div>
 
                     <a href="{% url 'quiz_take' slug=item.quiz.slug %}" 
-                       class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-md shadow-indigo-500/20 transition text-center block">
+                       class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-500/20 transition text-center block">
                         {% if item.user_attempt %}Retake Quiz Challenge{% else %}Start Quiz Challenge{% endif %}
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full p-10 text-center bg-white rounded-2xl border border-slate-200 shadow-2xs space-y-2">
+                <div class="w-12 h-12 mx-auto rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-clipboard-question"></i>
+                </div>
+                <h4 class="text-base font-bold text-slate-900 font-heading">No Curated Quizzes Yet</h4>
+                <p class="text-xs text-slate-500 max-w-md mx-auto font-content">You can build and take customized challenges instantly using the Random Quiz Generator above.</p>
+                <div class="pt-2">
+                    <a href="{% url 'quiz_generate' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-xs transition">
+                        <i class="fa-solid fa-sliders"></i> Generate Custom Quiz
                     </a>
                 </div>
             </div>
@@ -121,74 +139,78 @@
     </div>
 
     <!-- 20 Question Types Interactive Showcase -->
-    <div class="p-8 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-6">
-        <div class="text-center max-w-2xl mx-auto">
-            <h3 class="text-lg font-bold text-white">Supported 20 Question Formats</h3>
-            <p class="text-xs text-slate-400 mt-1">Our engine evaluates complex responses beyond standard multiple choice.</p>
+    <div class="p-8 rounded-3xl bg-gradient-to-b from-white via-slate-50/60 to-white border border-slate-200 shadow-xs space-y-6">
+        <div class="text-center max-w-2xl mx-auto space-y-1">
+            <span class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-semibold uppercase tracking-wider">
+                Full Evaluation Spectrum
+            </span>
+            <h3 class="text-xl sm:text-2xl font-bold text-slate-900 font-heading">Supported 20 Question Formats</h3>
+            <p class="text-xs sm:text-sm text-slate-600 font-content">Our engine evaluates complex responses beyond standard multiple choice.</p>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 text-xs">
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-regular fa-circle-dot text-indigo-400"></i> Multiple Choice (MCQ)
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-regular fa-circle-dot text-indigo-600"></i> Multiple Choice (MCQ)
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-regular fa-square-check text-blue-400"></i> Multiple Select
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-regular fa-square-check text-blue-600"></i> Multiple Select
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-toggle-on text-emerald-400"></i> True / False
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-toggle-on text-emerald-600"></i> True / False
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-pen text-amber-400"></i> Fill in the Blank
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-pen text-amber-600"></i> Fill in the Blank
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-terminal text-rose-400"></i> Code Output
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-terminal text-rose-600"></i> Code Output
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-bug text-purple-400"></i> Find the Error
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-bug text-purple-600"></i> Find the Error
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-screwdriver-wrench text-teal-400"></i> Debug the Code
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-screwdriver-wrench text-teal-600"></i> Debug the Code
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-bars-staggered text-orange-400"></i> Arrange the Code
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-bars-staggered text-orange-600"></i> Arrange the Code
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-link text-indigo-400"></i> Match the Following
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-link text-indigo-600"></i> Match the Following
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-hand-pointer text-emerald-400"></i> Drag & Drop Answer
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-hand-pointer text-emerald-600"></i> Drag & Drop Answer
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-code text-blue-400"></i> Code Completion
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-code text-blue-600"></i> Code Completion
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-briefcase text-amber-400"></i> Scenario Based
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-briefcase text-amber-600"></i> Scenario Based
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-list-ol text-rose-400"></i> Order / Sequence
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-list-ol text-rose-600"></i> Order / Sequence
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-lines-leaning text-purple-400"></i> Identify Output
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-lines-leaning text-purple-600"></i> Identify Output
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-calculator text-teal-400"></i> Predict Variable
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-calculator text-teal-600"></i> Predict Variable
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-arrow-down-1-9 text-orange-400"></i> Code Ordering
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-arrow-down-1-9 text-orange-600"></i> Code Ordering
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-diagram-project text-indigo-400"></i> Diagram Based
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-diagram-project text-indigo-600"></i> Diagram Based
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-font text-emerald-400"></i> Short Answer
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-font text-emerald-600"></i> Short Answer
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-code-compare text-blue-400"></i> Code Comparison
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-code-compare text-blue-600"></i> Code Comparison
             </div>
-            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-300 flex items-center gap-2">
-                <i class="fa-solid fa-laptop-code text-amber-400"></i> Mini Challenge
+            <div class="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-slate-900 shadow-2xs transition flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-laptop-code text-amber-600"></i> Mini Challenge
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
+

@@ -1,54 +1,264 @@
-/* Custom Styles & Utilities for PyMaster */
+/* ==========================================================================
+   PyMaster Custom Styles & Utilities
+   Typography Requirements:
+   - Headings: Waldenburg (woff2) with "Waldenburg Fallback"
+   - Content:  Inter (woff2) with "Inter Fallback"
+   Theme:
+   - Modern, Crisp Light Theme
+   ========================================================================== */
 
+/* 1. Headings Font: Waldenburg & Fallback */
+@font-face {
+    font-family: 'Waldenburg';
+    src: url('/static/fonts/Waldenburg.woff2') format('woff2');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Waldenburg Fallback';
+    src: local('Helvetica Neue'), local('Arial'), local('Segoe UI'), local('Roboto'), local('sans-serif');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* 2. Content Font: Inter & Fallback */
+@font-face {
+    font-family: 'Inter';
+    src: url('https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2') format('woff2'),
+         url('/static/fonts/Inter.woff2') format('woff2');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter Fallback';
+    src: local('system-ui'), local('-apple-system'), local('BlinkMacSystemFont'), local('Segoe UI'), local('Roboto'), local('sans-serif');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Typography Hierarchy */
+h1, h2, h3, h4, h5, h6, 
+summary,
+.font-heading, 
+.site-title,
+th,
+[data-heading] {
+    font-family: 'Waldenburg', 'Waldenburg Fallback', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    letter-spacing: -0.025em;
+    color: #0f172a;
+}
+
+details summary {
+    color: #0f172a !important;
+}
+
+body, 
+p, 
+span, 
+a, 
+li, 
+button, 
+input, 
+select, 
+textarea, 
+label, 
+td,
+.font-content, 
+.font-sans, 
+.font-body {
+    font-family: 'Inter', 'Inter Fallback', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ==========================================================================
+   Light Theme System & Color Tokens
+   ========================================================================== */
 :root {
-    --color-primary: #3b82f6;
-    --color-primary-hover: #2563eb;
-    --editor-bg: #1e1e2e;
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --bg-page: #f8fafc;
+    --bg-surface: #ffffff;
+    --border-color: #e2e8f0;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 /* Smooth scrolling */
 html {
     scroll-behavior: smooth;
+    color-scheme: light;
 }
 
-/* Custom scrollbars */
+/* Light Theme Root and Body */
+html, html.light {
+    background-color: #f8fafc !important;
+    color: #1e293b !important;
+}
+
+body {
+    background-color: #f8fafc !important;
+    color: #1e293b !important;
+}
+
+/* Header in Light Mode */
+header {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+}
+
+/* Surfaces & Cards in Light Mode */
+.glass-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.04) !important;
+    color: #0f172a !important;
+}
+
+.glass-card:hover {
+    border-color: #bfdbfe !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Light Theme Card Overrides for existing dark classes */
+.bg-slate-900,
+.bg-darkbg {
+    background-color: #f8fafc !important;
+}
+
+.bg-slate-800,
+.bg-slate-800\/80,
+.bg-slate-800\/90,
+.bg-slate-800\/60,
+.bg-slate-800\/40,
+.bg-darkcard {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.bg-slate-950 {
+    background-color: #f1f5f9 !important;
+    border-color: #e2e8f0 !important;
+}
+
+/* Borders in Light Theme */
+.border-slate-800,
+.border-slate-800\/80,
+.border-slate-700,
+.border-slate-700\/80,
+.border-slate-700\/60,
+.border-darkborder {
+    border-color: #e2e8f0 !important;
+}
+
+/* Text readability in Light Theme for legacy dark-theme text classes */
+.text-slate-100,
+.text-slate-200 {
+    color: #1e293b !important;
+}
+
+.text-slate-300 {
+    color: #334155 !important;
+}
+
+.text-slate-400 {
+    color: #64748b !important;
+}
+
+/* Ensure headings, paragraphs, strong metrics, and table cells with text-white are dark & legible in Light Mode */
+h1.text-white,
+h2.text-white,
+h3.text-white,
+h4.text-white,
+h5.text-white,
+h6.text-white,
+p.text-white,
+strong.text-white,
+th.text-white,
+td.text-white {
+    color: #0f172a !important;
+}
+
+/* Retain crisp white text on colored CTA buttons & gradient pills */
+.bg-brand-600,
+.bg-brand-500,
+.bg-indigo-600,
+.bg-emerald-600,
+.bg-rose-600,
+button[type="submit"],
+.btn-primary {
+    color: #ffffff !important;
+}
+
+.bg-brand-600 *,
+.bg-indigo-600 *,
+.bg-emerald-600 *,
+button[type="submit"] * {
+    color: #ffffff !important;
+}
+
+/* Form Controls in Light Mode */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="url"],
+select,
+textarea {
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #94a3b8 !important;
+}
+
+/* Tables in Light Mode */
+table thead tr {
+    background-color: #f8fafc !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+}
+
+table thead th {
+    color: #475569 !important;
+}
+
+table tbody tr:hover {
+    background-color: #f1f5f9 !important;
+}
+
+/* Light Theme Scrollbars */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 ::-webkit-scrollbar-track {
-    background: rgba(15, 23, 42, 0.6);
+    background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-    background: #334155;
+    background: #cbd5e1;
     border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+    background: #94a3b8;
 }
 
-/* CodeMirror customizations */
+/* CodeMirror in Light Mode */
 .CodeMirror {
     height: 100% !important;
     min-height: 280px;
     font-family: var(--font-mono) !important;
     font-size: 14px;
     line-height: 1.6;
-    border-radius: 0.5rem;
-}
-
-/* Glow effects */
-.badge-glow {
-    box-shadow: 0 0 15px rgba(234, 179, 8, 0.25);
-}
-
-.terminal-window {
-    background-color: #0f172a;
-    border: 1px solid #1e293b;
     border-radius: 0.75rem;
-    overflow: hidden;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    border: 1px solid #e2e8f0;
 }
 
 /* Card hover animation */
@@ -57,16 +267,5 @@ html {
 }
 .hover-lift:hover {
     transform: translateY(-3px);
-    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.3);
-}
-
-/* Flash animation for new badges */
-@keyframes badgePop {
-    0% { transform: scale(0.8); opacity: 0; }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.badge-pop {
-    animation: badgePop 0.4s ease-out forwards;
+    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
 }

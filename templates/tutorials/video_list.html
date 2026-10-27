@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Python Video Tutorials - Watch & Learn Coding | PyMaster{% endblock %}
+{% block meta_description %}Learn Python programming visually through comprehensive video walkthroughs, code explanations, and project demonstrations.{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+
+    <!-- Hero Header -->
+    <div class="text-center max-w-3xl mx-auto space-y-3">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-50 border border-purple-200 text-purple-700 text-xs font-semibold">
+            <i class="fa-solid fa-circle-play animate-pulse text-purple-600"></i> Visual Learning Library
+        </div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight font-heading">
+            Python <span class="bg-gradient-to-r from-purple-600 via-brand-600 to-indigo-600 bg-clip-text text-transparent">Video Tutorials</span>
+        </h1>
+        <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+            Watch hands-on coding walkthroughs, master Python core fundamentals, and build real projects step by step.
+        </p>
+
+        <!-- Search & Filter Controls -->
+        <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <form method="GET" action="{% url 'video_tutorial_list' %}" class="relative w-full max-w-md">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                </span>
+                <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search videos by title or topic..."
+                       class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-white border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 shadow-xs">
+            </form>
+
+            {% if user.is_staff %}
+            <a href="{% url 'admin_panel' %}" 
+               class="px-4 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-indigo-500/20">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Upload Video</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Category Filter Chips -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none justify-start sm:justify-center flex-wrap">
+        <a href="{% url 'video_tutorial_list' %}"
+           class="px-3.5 py-1.5 rounded-full text-xs font-medium transition {% if not selected_category %}bg-brand-600 text-white shadow-md shadow-brand-500/20 font-semibold{% else %}bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200 shadow-xs{% endif %}">
+            All Videos ({{ total_videos }})
+        </a>
+        {% for cat in categories %}
+        <a href="{% url 'video_tutorial_list' %}?category={{ cat.slug }}"
+           class="px-3.5 py-1.5 rounded-full text-xs font-medium transition {% if selected_category == cat.slug %}bg-brand-600 text-white shadow-md shadow-brand-500/20 font-semibold{% else %}bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200 shadow-xs{% endif %}">
+            {{ cat.name }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Video Cards Grid -->
+    {% if videos %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for video in videos %}
+        <div class="bg-white hover:bg-slate-50/60 border border-slate-200 hover:border-brand-500/40 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-lg flex flex-col group">
+            
+            <!-- Video Thumbnail & Play Button -->
+            <a href="{% url 'video_tutorial_detail' video.slug %}" class="relative aspect-video bg-slate-100 overflow-hidden block">
+                {% if video.thumbnail %}
+                    <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                {% else %}
+                    <div class="w-full h-full bg-gradient-to-tr from-slate-100 via-indigo-50 to-blue-50 flex items-center justify-center text-slate-400 group-hover:text-brand-500 transition">
+                        <i class="fa-solid fa-clapperboard text-4xl"></i>
+                    </div>
+                {% endif %}
+
+                <!-- Play Overlay Badge -->
+                <div class="absolute inset-0 bg-slate-900/10 group-hover:bg-slate-900/20 flex items-center justify-center transition">
+                    <div class="w-12 h-12 rounded-full bg-brand-600/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-brand-500 transition-all pl-0.5">
+                        <i class="fa-solid fa-play text-base"></i>
+                    </div>
+                </div>
+
+                <!-- Duration Pill -->
+                <div class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-md bg-black/80 text-white text-[11px] font-semibold flex items-center gap-1 backdrop-blur-sm">
+                    <i class="fa-regular fa-clock text-[10px]"></i> {{ video.duration_mins }}m
+                </div>
+
+                <!-- Category Pill -->
+                {% if video.category %}
+                <div class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-indigo-600 text-white text-[11px] font-semibold shadow-xs">
+                    {{ video.category.name }}
+                </div>
+                {% endif %}
+            </a>
+
+            <!-- Content Details -->
+            <div class="p-5 flex flex-col flex-grow justify-between space-y-4">
+                <div>
+                    <h3 class="font-bold text-base text-slate-900 group-hover:text-brand-600 transition line-clamp-2 font-heading">
+                        <a href="{% url 'video_tutorial_detail' video.slug %}">
+                            {{ video.title }}
+                        </a>
+                    </h3>
+                    <p class="text-xs text-slate-500 line-clamp-2 mt-1.5 leading-relaxed">
+                        {{ video.description }}
+                    </p>
+                </div>
+
+                <!-- Footer Meta -->
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <div class="flex items-center gap-3">
+                        <span><i class="fa-solid fa-eye text-slate-400 mr-1"></i>{{ video.views_count }} views</span>
+                        <span><i class="fa-solid fa-calendar text-slate-400 mr-1"></i>{{ video.created_at|date:"M d" }}</span>
+                    </div>
+
+                    <a href="{% url 'video_tutorial_detail' video.slug %}" 
+                       class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
+                        Watch <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-16 bg-white border border-dashed border-slate-200 rounded-2xl max-w-xl mx-auto shadow-xs">
+        <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 mx-auto flex items-center justify-center text-3xl mb-4">
+            <i class="fa-solid fa-video-slash"></i>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 font-heading">No Video Tutorials Found</h3>
+        <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+            {% if search_query %}
+                No video lessons matched your query "{{ search_query }}". Try clearing your search.
+            {% else %}
+                No video tutorials are currently available in this category.
+            {% endif %}
+        </p>
+        <div class="mt-5">
+            <a href="{% url 'video_tutorial_list' %}" class="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                View All Videos
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

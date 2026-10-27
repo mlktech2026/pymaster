@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ video.title }} - Python Video Tutorial | PyMaster{% endblock %}
+{% block meta_description %}{{ video.description|truncatewords:25 }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Breadcrumbs -->
+    <nav class="flex items-center gap-2 text-xs text-slate-500">
+        <a href="{% url 'home' %}" class="hover:text-brand-600 transition">Home</a>
+        <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+        <a href="{% url 'video_tutorial_list' %}" class="hover:text-brand-600 transition">Video Tutorials</a>
+        {% if video.category %}
+            <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+            <a href="{% url 'video_tutorial_list' %}?category={{ video.category.slug }}" class="hover:text-brand-600 transition">
+                {{ video.category.name }}
+            </a>
+        {% endif %}
+        <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+        <span class="text-slate-800 font-medium truncate max-w-xs">{{ video.title }}</span>
+    </nav>
+
+    <!-- Main Grid: Player + Sidebar -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Left 2 Cols: Video Player & Description -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Video Player Box -->
+            <div class="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-200 shadow-xl relative">
+                {% if video.video_file %}
+                    <video controls autoplay class="w-full h-full rounded-2xl object-contain bg-black" {% if video.thumbnail %}poster="{{ video.thumbnail.url }}"{% endif %}>
+                        <source src="{{ video.video_file.url }}" type="video/mp4">
+                        Your browser does not support HTML5 video streaming.
+                    </video>
+                {% elif video.embed_url %}
+                    <iframe src="{{ video.embed_url }}" 
+                            class="w-full h-full rounded-2xl border-0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen></iframe>
+                {% elif video.video_url %}
+                    <video controls class="w-full h-full rounded-2xl object-contain bg-black">
+                        <source src="{{ video.video_url }}" type="video/mp4">
+                        Your browser does not support HTML5 video streaming.
+                    </video>
+                {% else %}
+                    <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 space-y-2">
+                        <i class="fa-solid fa-video-slash text-4xl"></i>
+                        <p class="text-xs">No video stream linked to this tutorial.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Video Details Header -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                        {% if video.category %}
+                            <span class="px-2.5 py-1 text-xs font-semibold rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                {{ video.category.name }}
+                            </span>
+                        {% endif %}
+                        <span class="text-xs text-slate-500 flex items-center gap-1">
+                            <i class="fa-regular fa-clock"></i> {{ video.duration_mins }} mins
+                        </span>
+                        <span class="text-xs text-slate-500 flex items-center gap-1">
+                            <i class="fa-solid fa-eye text-slate-400"></i> {{ video.views_count }} views
+                        </span>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2">
+                        {% if user.is_authenticated %}
+                            <button id="markCompleteBtn" onclick="markVideoDone()" 
+                                    class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span>Mark as Watched (+30 XP)</span>
+                            </button>
+                        {% endif %}
+
+                        <button onclick="navigator.clipboard.writeText(window.location.href); alert('Video link copied to clipboard!');" 
+                                class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5" title="Copy Link">
+                            <i class="fa-solid fa-share-nodes text-slate-500"></i>
+                            <span>Share</span>
+                        </button>
+                    </div>
+                </div>
+
+                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight font-heading">
+                    {{ video.title }}
+                </h1>
+
+                <!-- Description -->
+                <div class="pt-4 border-t border-slate-100 text-sm text-slate-600 leading-relaxed space-y-3 whitespace-pre-line font-content">
+                    {{ video.description }}
+                </div>
+            </div>
+
+            <!-- Interactive Practice Callout -->
+            <div class="p-5 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50/50 to-purple-50 border border-blue-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2 font-heading">
+                        <i class="fa-solid fa-terminal text-emerald-600"></i> Practice What You Learned
+                    </h3>
+                    <p class="text-xs text-slate-600">
+                        Open the browser sandbox and test the concepts covered in this video.
+                    </p>
+                </div>
+                <a href="{% url 'practice' %}" 
+                   class="px-4 py-2 text-xs font-bold text-white bg-brand-600 hover:bg-brand-500 rounded-xl transition shadow flex items-center gap-1.5 whitespace-nowrap">
+                    <span>Open Code Sandbox</span>
+                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Right 1 Col: Related Videos & Playlist Sidebar -->
+        <div class="space-y-6">
+
+            <!-- Related Videos -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2 font-heading">
+                    <i class="fa-solid fa-film text-purple-600"></i>
+                    Related Video Lessons
+                </h3>
+
+                {% if related_videos %}
+                <div class="space-y-3">
+                    {% for rvideo in related_videos %}
+                    <a href="{% url 'video_tutorial_detail' rvideo.slug %}" 
+                       class="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 transition group">
+                        
+                        <!-- Thumbnail -->
+                        <div class="w-24 aspect-video rounded-lg bg-slate-100 overflow-hidden relative flex-shrink-0 border border-slate-200">
+                            {% if rvideo.thumbnail %}
+                                <img src="{{ rvideo.thumbnail.url }}" alt="{{ rvideo.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs">
+                                    <i class="fa-solid fa-play"></i>
+                                </div>
+                            {% endif %}
+                            <span class="absolute bottom-1 right-1 px-1 py-0.2 rounded bg-black/80 text-[10px] text-white font-medium">
+                                {{ rvideo.duration_mins }}m
+                            </span>
+                        </div>
+
+                        <!-- Info -->
+                        <div class="min-w-0">
+                            <h4 class="text-xs font-bold text-slate-900 group-hover:text-brand-600 transition line-clamp-2 leading-snug font-heading">
+                                {{ rvideo.title }}
+                            </h4>
+                            <p class="text-[11px] text-slate-500 mt-1 flex items-center gap-2">
+                                <span><i class="fa-solid fa-eye text-slate-400 mr-0.5"></i>{{ rvideo.views_count }}</span>
+                                {% if rvideo.category %}
+                                    <span>&bull; {{ rvideo.category.name }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-xs text-slate-500">No other videos in this module yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- All Categories Quick Access -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2 font-heading">
+                    <i class="fa-solid fa-list-check text-brand-600"></i>
+                    Browse Categories
+                </h3>
+                <div class="flex flex-wrap gap-1.5">
+                    {% for cat in all_categories %}
+                    <a href="{% url 'video_tutorial_list' %}?category={{ cat.slug }}" 
+                       class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition font-medium">
+                        {{ cat.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% if user.is_authenticated %}
+<script>
+    function markVideoDone() {
+        const btn = document.getElementById('markCompleteBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+        fetch("{% url 'mark_video_complete' video.slug %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                btn.className = "px-3.5 py-1.5 text-xs font-bold rounded-xl bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 cursor-default flex items-center gap-1.5";
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Completed (+30 XP Earned)';
+                if (data.new_badges && data.new_badges.length > 0) {
+                    alert("Congratulations! You earned new badge(s): " + data.new_badges.join(", "));
+                }
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Mark as Watched (+30 XP)';
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Mark as Watched (+30 XP)';
+        });
+    }
+</script>
+{% endif %}
+{% endblock %}

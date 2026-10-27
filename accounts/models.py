@@ -18,7 +18,7 @@ class UserProfile(models.Model):
     longest_streak = models.PositiveIntegerField(default=0)
     last_active_date = models.DateField(null=True, blank=True)
     total_xp = models.PositiveIntegerField(default=0)
-    preferred_theme = models.CharField(max_length=10, choices=THEME_CHOICES, default='dark')
+    preferred_theme = models.CharField(max_length=10, choices=THEME_CHOICES, default='light')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

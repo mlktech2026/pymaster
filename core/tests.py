@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from practice.sandbox import execute_python_code, sanitize_code
-from tutorials.models import Tutorial, TutorialCategory, TutorialProgress
+from tutorials.models import Tutorial, TutorialCategory, TutorialProgress, VideoTutorial
 from exercises.models import Exercise, ExerciseCategory, ExerciseTestCase, ExerciseSubmission
 from quizzes.models import Quiz, QuizQuestion, QuizOption, QuizAttempt, QuizAnswer
 from quizzes.validators import validate_question_answer
@@ -191,3 +191,92 @@ class PlatformViewsTests(TestCase):
         response = self.client.get('/quizzes/dashboard/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Quiz Performance Dashboard")
+
+
+class VideoTutorialAndAdminAnalyticsTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.category = TutorialCategory.objects.create(name='Python Basics', slug='python-basics', level='beginner')
+        self.staff_user = User.objects.create_user(
+            username='admin_staff', password='staffpassword123', is_staff=True
+        )
+        self.regular_user = User.objects.create_user(
+            username='student', password='studentpassword123'
+        )
+        self.video = VideoTutorial.objects.create(
+            title='Intro to Python Variables',
+            category=self.category,
+            description='Learn how to declare variables and assign values.',
+            video_url='https://www.youtube.com/watch?v=kqtD5dpn9C8',
+            duration_mins=12,
+            is_published=True
+        )
+
+    def test_video_model_slug_and_embed_url(self):
+        self.assertEqual(self.video.slug, 'intro-to-python-variables')
+        self.assertTrue(self.video.has_video)
+        self.assertIn('https://www.youtube.com/embed/kqtD5dpn9C8', self.video.embed_url)
+
+    def test_video_gallery_public_view(self):
+        response = self.client.get('/tutorials/videos/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Intro to Python Variables')
+
+    def test_video_detail_and_view_count_increment(self):
+        initial_views = self.video.views_count
+        response = self.client.get(f'/tutorials/videos/{self.video.slug}/')
+        self.assertEqual(response.status_code, 200)
+        self.video.refresh_from_db()
+        self.assertEqual(self.video.views_count, initial_views + 1)
+
+    def test_admin_panel_permission_required(self):
+        # Anonymous user redirected
+        anon_response = self.client.get('/admin-panel/')
+        self.assertEqual(anon_response.status_code, 302)
+
+        # Student user (non-staff) redirected
+        self.client.login(username='student', password='studentpassword123')
+        student_response = self.client.get('/admin-panel/')
+        self.assertEqual(student_response.status_code, 302)
+
+        # Staff user gets 200
+        self.client.login(username='admin_staff', password='staffpassword123')
+        staff_response = self.client.get('/admin-panel/')
+        self.assertEqual(staff_response.status_code, 200)
+        self.assertContains(staff_response, "Website Analytics & Video Tutorial Hub")
+        self.assertContains(staff_response, "pageViewsChart")
+
+    def test_admin_upload_video(self):
+        self.client.login(username='admin_staff', password='staffpassword123')
+        post_data = {
+            'title': 'Advanced Python Decorators',
+            'description': 'Mastering function decorators and wrappers.',
+            'category': self.category.id,
+            'video_url': 'https://www.youtube.com/watch?v=FsAPt_9BQqU',
+            'duration_mins': 15,
+            'is_published': 'on',
+            'order': 5
+        }
+        response = self.client.post('/admin-panel/upload-video/', post_data)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(VideoTutorial.objects.filter(title='Advanced Python Decorators').exists())
+
+    def test_admin_delete_video(self):
+        self.client.login(username='admin_staff', password='staffpassword123')
+        vid_to_delete = VideoTutorial.objects.create(
+            title='Temporary Video',
+            description='To be deleted',
+            video_url='https://example.com/video.mp4'
+        )
+        response = self.client.post(f'/admin-panel/delete-video/{vid_to_delete.pk}/')
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(VideoTutorial.objects.filter(pk=vid_to_delete.pk).exists())
+
+    def test_page_view_middleware_records_views(self):
+        from core.models import PageView
+        initial_count = PageView.objects.count()
+        # Visit home page
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertGreater(PageView.objects.count(), initial_count)
+

@@ -6,30 +6,30 @@
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
     
     <!-- Top Quiz Header & Live Timer -->
-    <div class="p-6 rounded-3xl bg-slate-800/90 border border-slate-700/80 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <div class="flex items-center gap-2 text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-1">
+            <div class="flex items-center gap-2 text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">
                 <span>{{ quiz.category }}</span>
                 <span>•</span>
                 <span class="capitalize">{{ quiz.get_difficulty_display }}</span>
             </div>
-            <h1 class="text-xl sm:text-2xl font-black text-white">{{ quiz.title }}</h1>
+            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 font-heading tracking-tight">{{ quiz.title }}</h1>
         </div>
 
         <div class="flex items-center gap-4">
             <!-- Timer Display -->
-            <div id="timer-box" class="px-4 py-2 rounded-2xl bg-slate-900 border border-slate-700 text-center flex items-center gap-3">
-                <i class="fa-solid fa-stopwatch text-indigo-400 text-lg"></i>
+            <div id="timer-box" class="px-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-center flex items-center gap-3">
+                <i class="fa-solid fa-stopwatch text-indigo-600 text-lg"></i>
                 <div class="text-left font-mono">
-                    <span class="text-[10px] text-slate-400 uppercase block">Time Remaining</span>
-                    <span id="quiz-timer" class="text-lg font-black text-amber-400">
+                    <span class="text-[10px] text-slate-500 uppercase block font-medium">Time Remaining</span>
+                    <span id="quiz-timer" class="text-lg font-black text-amber-600">
                         {% if quiz.time_limit_mins > 0 %}{{ quiz.time_limit_mins }}:00{% else %}No Timer{% endif %}
                     </span>
                 </div>
             </div>
 
             <!-- Finish / Submit Button -->
-            <button id="header-submit-btn" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
+            <button id="header-submit-btn" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition flex items-center gap-2">
                 <i class="fa-solid fa-paper-plane text-xs"></i>
                 <span>Submit Quiz</span>
             </button>
@@ -37,15 +37,15 @@
     </div>
 
     <!-- Question Progress Bar & Question Navigator Bar -->
-    <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+    <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-4">
         <div class="flex items-center justify-between text-xs font-mono">
-            <span class="text-slate-300 font-bold" id="progress-text">Question 1 of {{ total_questions }}</span>
-            <span class="text-indigo-400 font-bold" id="progress-pct">0% Complete</span>
+            <span class="text-slate-800 font-bold" id="progress-text">Question 1 of {{ total_questions }}</span>
+            <span class="text-indigo-600 font-bold" id="progress-pct">0% Complete</span>
         </div>
 
         <!-- Visual Progress Bar -->
-        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
-            <div id="progress-bar-fill" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-400 transition-all duration-300" style="width: 10%;"></div>
+        <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+            <div id="progress-bar-fill" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-300" style="width: 10%;"></div>
         </div>
 
         <!-- Interactive Question Pill Navigator (1 2 3 ... ✓ ● ○) -->
@@ -54,8 +54,8 @@
             <button type="button" 
                     data-index="{{ forloop.counter0 }}" 
                     class="nav-pill w-8 h-8 rounded-lg text-xs font-bold font-mono transition flex items-center justify-center border
-                    {% if forloop.first %} bg-indigo-600 text-white border-indigo-400 ring-2 ring-indigo-500/40
-                    {% else %} bg-slate-800 text-slate-400 border-slate-700 hover:text-white hover:bg-slate-700 {% endif %}">
+                    {% if forloop.first %} bg-indigo-600 text-white border-indigo-500 ring-2 ring-indigo-500/30
+                    {% else %} bg-slate-50 text-slate-600 border-slate-200 hover:text-slate-900 hover:bg-slate-100 {% endif %}">
                 {{ forloop.counter }}
             </button>
             {% endfor %}
@@ -65,39 +65,39 @@
     <!-- Master Quiz Container (Single Question Active at a Time) -->
     <div id="questions-viewport" class="space-y-6">
         {% for q in questions %}
-        <div class="question-card {% if not forloop.first %}hidden{% endif %} p-6 sm:p-8 rounded-3xl bg-slate-800/80 border border-slate-700/80 shadow-2xl space-y-6"
+        <div class="question-card {% if not forloop.first %}hidden{% endif %} p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6"
              data-qid="{{ q.id }}"
              data-index="{{ forloop.counter0 }}"
              data-type="{{ q.question_type }}">
             
             <!-- Question Card Top Badges -->
-            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700/80 pb-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
                 <div class="flex items-center gap-2">
-                    <span class="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-bold">
+                    <span class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold">
                         {{ q.get_question_type_display }}
                     </span>
                     <span class="text-xs px-2.5 py-0.5 rounded-full font-semibold uppercase
-                        {% if q.difficulty == 'easy' %} bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
-                        {% elif q.difficulty == 'medium' %} bg-amber-500/10 text-amber-400 border border-amber-500/20
-                        {% else %} bg-rose-500/10 text-rose-400 border border-rose-500/20 {% endif %}">
+                        {% if q.difficulty == 'easy' %} bg-emerald-50 text-emerald-700 border border-emerald-200
+                        {% elif q.difficulty == 'medium' %} bg-amber-50 text-amber-700 border border-amber-200
+                        {% else %} bg-rose-50 text-rose-700 border border-rose-200 {% endif %}">
                         {{ q.get_difficulty_display }}
                     </span>
                 </div>
-                <span class="text-xs font-mono font-bold text-amber-400">
+                <span class="text-xs font-mono font-bold text-amber-600">
                     <i class="fa-solid fa-star text-[10px] mr-1"></i>{{ q.marks }} Mark{{ q.marks|pluralize }}
                 </span>
             </div>
 
             <!-- Question Statement -->
-            <div class="text-lg sm:text-xl font-bold text-white leading-relaxed">
+            <div class="text-lg sm:text-xl font-bold text-slate-900 font-heading leading-relaxed">
                 {{ q.question_text }}
             </div>
 
             <!-- Optional Code Snippet -->
             {% if q.code_snippet and q.question_type != 'debug_code' and q.question_type != 'mini_challenge' %}
-            <div class="terminal-window">
-                <div class="px-4 py-2 bg-slate-900 border-b border-slate-800 text-[11px] font-mono text-slate-400">Python 3</div>
-                <pre class="p-4 bg-slate-950 font-mono text-xs sm:text-sm text-slate-200 overflow-x-auto leading-relaxed">{{ q.code_snippet }}</pre>
+            <div class="rounded-xl overflow-hidden border border-slate-200 shadow-2xs">
+                <div class="px-4 py-2 bg-slate-100 border-b border-slate-200 text-[11px] font-mono text-slate-600">Python 3</div>
+                <pre class="p-4 bg-slate-900 font-mono text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed">{{ q.code_snippet }}</pre>
             </div>
             {% endif %}
 
@@ -109,10 +109,10 @@
             {% if q.question_type in 'mcq,code_output,find_error,scenario_based,identify_output,diagram_question,code_comparison' %}
             <div class="space-y-3 pt-2">
                 {% for opt in q.options.all %}
-                <label class="radio-card flex items-center gap-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-700/80 hover:border-indigo-500 hover:bg-slate-900 cursor-pointer transition text-sm text-slate-200 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/30 has-[:checked]:text-white shadow-sm">
+                <label class="radio-card flex items-center gap-4 p-4 rounded-2xl bg-slate-50/80 border border-slate-200 hover:border-indigo-400 hover:bg-white cursor-pointer transition text-sm text-slate-800 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/50 has-[:checked]:text-indigo-950 shadow-2xs">
                     <input type="radio" name="answer_{{ q.id }}" value="{{ opt.id }}" class="hidden">
-                    <div class="w-6 h-6 rounded-full border-2 border-slate-600 flex items-center justify-center flex-shrink-0 group-has-[:checked]:border-indigo-500">
-                        <div class="radio-dot w-2.5 h-2.5 rounded-full bg-indigo-500 hidden"></div>
+                    <div class="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center flex-shrink-0 group-has-[:checked]:border-indigo-600">
+                        <div class="radio-dot w-2.5 h-2.5 rounded-full bg-indigo-600 hidden"></div>
                     </div>
                     <span class="font-mono text-xs sm:text-sm">{{ opt.option_text|linebreaksbr }}</span>
                 </label>
@@ -122,11 +122,11 @@
             <!-- 2. Multiple Select (Checkboxes) -->
             {% elif q.question_type == 'multiple_select' %}
             <div class="space-y-3 pt-2">
-                <p class="text-xs text-indigo-400 font-semibold mb-2">Select all choices that apply:</p>
+                <p class="text-xs text-indigo-700 font-semibold mb-2">Select all choices that apply:</p>
                 {% for opt in q.options.all %}
-                <label class="checkbox-card flex items-center gap-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-700/80 hover:border-indigo-500 hover:bg-slate-900 cursor-pointer transition text-sm text-slate-200 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/30 has-[:checked]:text-white shadow-sm">
+                <label class="checkbox-card flex items-center gap-4 p-4 rounded-2xl bg-slate-50/80 border border-slate-200 hover:border-indigo-400 hover:bg-white cursor-pointer transition text-sm text-slate-800 has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/50 has-[:checked]:text-indigo-950 shadow-2xs">
                     <input type="checkbox" name="answer_{{ q.id }}" value="{{ opt.id }}" class="hidden">
-                    <div class="check-box w-6 h-6 rounded-lg border-2 border-slate-600 flex items-center justify-center flex-shrink-0">
+                    <div class="check-box w-6 h-6 rounded-lg border-2 border-slate-300 flex items-center justify-center flex-shrink-0">
                         <i class="fa-solid fa-check text-xs text-white hidden check-icon"></i>
                     </div>
                     <span class="font-mono text-xs sm:text-sm">{{ opt.option_text }}</span>
@@ -137,54 +137,54 @@
             <!-- 3. True / False Cards -->
             {% elif q.question_type == 'true_false' %}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <label class="tf-card p-6 rounded-2xl bg-slate-900 border border-slate-700 hover:border-emerald-500 cursor-pointer flex flex-col items-center justify-center gap-3 transition text-center has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-950/30 shadow-md">
+                <label class="tf-card p-6 rounded-2xl bg-slate-50/80 border border-slate-200 hover:border-emerald-500 hover:bg-white cursor-pointer flex flex-col items-center justify-center gap-3 transition text-center has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50/50 shadow-2xs">
                     <input type="radio" name="answer_{{ q.id }}" value="True" class="hidden">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl">
                         <i class="fa-solid fa-check"></i>
                     </div>
-                    <span class="text-base font-bold text-white">TRUE</span>
+                    <span class="text-base font-bold text-slate-900 font-heading">TRUE</span>
                 </label>
-                <label class="tf-card p-6 rounded-2xl bg-slate-900 border border-slate-700 hover:border-rose-500 cursor-pointer flex flex-col items-center justify-center gap-3 transition text-center has-[:checked]:border-rose-500 has-[:checked]:bg-rose-950/30 shadow-md">
+                <label class="tf-card p-6 rounded-2xl bg-slate-50/80 border border-slate-200 hover:border-rose-500 hover:bg-white cursor-pointer flex flex-col items-center justify-center gap-3 transition text-center has-[:checked]:border-rose-600 has-[:checked]:bg-rose-50/50 shadow-2xs">
                     <input type="radio" name="answer_{{ q.id }}" value="False" class="hidden">
-                    <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-2xl">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-2xl">
                         <i class="fa-solid fa-xmark"></i>
                     </div>
-                    <span class="text-base font-bold text-white">FALSE</span>
+                    <span class="text-base font-bold text-slate-900 font-heading">FALSE</span>
                 </label>
             </div>
 
             <!-- 4. Fill in the Blank, Code Completion, Predict Variable, Short Answer -->
             {% elif q.question_type in 'fill_blank,code_completion,predict_variable,short_answer' %}
-            <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
-                <label class="block text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">
-                    <i class="fa-solid fa-i-cursor text-indigo-400 mr-1.5"></i> Type Your Answer:
+            <div class="p-6 rounded-2xl bg-slate-50/80 border border-slate-200 space-y-3">
+                <label class="block text-xs font-mono font-bold text-slate-600 uppercase tracking-wider">
+                    <i class="fa-solid fa-i-cursor text-indigo-600 mr-1.5"></i> Type Your Answer:
                 </label>
                 <input type="text" 
                        id="input_{{ q.id }}" 
                        autocomplete="off" 
                        spellcheck="false"
                        placeholder="Enter exact keyword, token, or value..."
-                       class="text-input-field w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-sm font-mono text-emerald-300 placeholder-slate-600 focus:outline-none focus:border-indigo-500">
+                       class="text-input-field w-full px-4 py-3 rounded-xl bg-white border border-slate-300 text-sm font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 shadow-2xs">
             </div>
 
             <!-- 5. Arrange the Code, Code Ordering, Order / Sequence Steps -->
             {% elif q.question_type in 'arrange_code,code_ordering,order_sequence' %}
             <div class="space-y-3">
-                <p class="text-xs text-indigo-400 font-semibold">
+                <p class="text-xs text-indigo-700 font-semibold">
                     <i class="fa-solid fa-arrows-up-down mr-1"></i> Reorder the blocks into the correct sequence (use arrows or drag):
                 </p>
                 <div class="sortable-list space-y-2" id="sortable_{{ q.id }}">
                     {% for block in q.question_data.shuffled_blocks %}
-                    <div class="sortable-item flex items-center justify-between p-3.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono text-slate-200 cursor-grab active:cursor-grabbing hover:border-slate-500 transition" draggable="true">
+                    <div class="sortable-item flex items-center justify-between p-3.5 rounded-xl bg-white border border-slate-200 text-xs font-mono text-slate-800 cursor-grab active:cursor-grabbing hover:border-slate-400 transition shadow-2xs" draggable="true">
                         <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-grip-vertical text-slate-500"></i>
+                            <i class="fa-solid fa-grip-vertical text-slate-400"></i>
                             <span class="block-content">{{ block }}</span>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button type="button" class="btn-move-up p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white" title="Move Up">
+                            <button type="button" class="btn-move-up p-1.5 rounded hover:bg-slate-100 text-slate-500 hover:text-slate-800" title="Move Up">
                                 <i class="fa-solid fa-arrow-up text-xs"></i>
                             </button>
-                            <button type="button" class="btn-move-down p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white" title="Move Down">
+                            <button type="button" class="btn-move-down p-1.5 rounded hover:bg-slate-100 text-slate-500 hover:text-slate-800" title="Move Down">
                                 <i class="fa-solid fa-arrow-down text-xs"></i>
                             </button>
                         </div>
@@ -196,12 +196,12 @@
             <!-- 6. Match the Following -->
             {% elif q.question_type == 'match_following' %}
             <div class="space-y-4">
-                <p class="text-xs text-indigo-400 font-semibold">Match each concept on the left with its definition on the right:</p>
+                <p class="text-xs text-indigo-700 font-semibold">Match each concept on the left with its definition on the right:</p>
                 <div class="space-y-3" id="match_{{ q.id }}">
                     {% for concept in q.question_data.concepts %}
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-slate-900 border border-slate-700 gap-3">
-                        <span class="font-bold text-sm font-mono text-emerald-400 min-w-[120px]">{{ concept }}</span>
-                        <select class="match-select w-full sm:w-auto flex-1 px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" data-concept="{{ concept }}">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-slate-50/80 border border-slate-200 gap-3">
+                        <span class="font-bold text-sm font-mono text-emerald-700 min-w-[120px]">{{ concept }}</span>
+                        <select class="match-select w-full sm:w-auto flex-1 px-3 py-2 rounded-lg bg-white border border-slate-300 text-xs text-slate-800 focus:outline-none focus:border-indigo-500" data-concept="{{ concept }}">
                             <option value="">-- Choose Matching Definition --</option>
                             {% for def_item in q.question_data.definitions %}
                             <option value="{{ def_item }}">{{ def_item }}</option>
@@ -215,21 +215,21 @@
             <!-- 7. Drag and Drop Blank -->
             {% elif q.question_type == 'drag_drop_blank' %}
             <div class="space-y-4">
-                <p class="text-xs text-indigo-400 font-semibold">Click or drag the correct keyword into the highlighted slot:</p>
+                <p class="text-xs text-indigo-700 font-semibold">Click or drag the correct keyword into the highlighted slot:</p>
                 
                 <!-- Target Slot Container -->
-                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 font-mono text-sm text-slate-300 flex items-center gap-2">
-                    <div id="drop-slot_{{ q.id }}" class="drop-target px-4 py-1.5 rounded-lg border-2 border-dashed border-indigo-500 bg-indigo-950/20 text-indigo-300 font-bold min-w-[100px] text-center">
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 font-mono text-sm text-slate-800 flex items-center gap-2">
+                    <div id="drop-slot_{{ q.id }}" class="drop-target px-4 py-1.5 rounded-lg border-2 border-dashed border-indigo-400 bg-indigo-50/50 text-indigo-700 font-bold min-w-[100px] text-center">
                         [ Drop Here ]
                     </div>
-                    <span class="text-slate-400">{{ q.code_snippet }}</span>
+                    <span class="text-slate-600">{{ q.code_snippet }}</span>
                 </div>
 
                 <!-- Draggable Token Chips -->
                 <div class="flex flex-wrap gap-2 pt-2" id="chips_{{ q.id }}">
                     {% for token in q.question_data.tokens %}
                     <button type="button" 
-                            class="token-chip px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono font-bold text-white hover:border-indigo-500 hover:bg-slate-800 transition shadow" 
+                            class="token-chip px-4 py-2 rounded-xl bg-white border border-slate-300 text-xs font-mono font-bold text-slate-800 hover:border-indigo-500 hover:bg-slate-50 transition shadow-2xs" 
                             data-token="{{ token }}">
                         {{ token }}
                     </button>
@@ -240,18 +240,18 @@
             <!-- 8. Debug the Code & Mini Challenge (Interactive CodeMirror) -->
             {% elif q.question_type in 'debug_code,mini_challenge' %}
             <div class="space-y-3">
-                <div class="flex items-center justify-between text-xs text-slate-400 font-mono">
+                <div class="flex items-center justify-between text-xs text-slate-600 font-mono">
                     <span>Edit and fix the code below:</span>
-                    <button type="button" class="btn-run-debug px-3 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold transition flex items-center gap-1.5" data-qid="{{ q.id }}">
+                    <button type="button" class="btn-run-debug px-3 py-1 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 font-bold transition flex items-center gap-1.5" data-qid="{{ q.id }}">
                         <i class="fa-solid fa-play text-[10px]"></i> Run & Test
                     </button>
                 </div>
 
-                <div class="rounded-xl overflow-hidden border border-slate-700">
+                <div class="rounded-xl overflow-hidden border border-slate-200">
                     <textarea class="code-editor-target" id="editor_{{ q.id }}">{{ q.code_snippet }}</textarea>
                 </div>
 
-                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs min-h-[50px] text-slate-400" id="debug-output_{{ q.id }}">
+                <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 font-mono text-xs min-h-[50px] text-slate-300" id="debug-output_{{ q.id }}">
                     Click 'Run & Test' to test your code before submitting.
                 </div>
             </div>
@@ -262,20 +262,20 @@
     </div>
 
     <!-- Bottom Controls: [Previous] [Clear] [Next] [Submit] -->
-    <div class="p-6 rounded-3xl bg-slate-800/90 border border-slate-700/80 shadow-xl flex items-center justify-between gap-4">
-        <button id="btn-prev" class="px-5 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 hover:text-white font-bold text-xs transition flex items-center gap-2">
+    <div class="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm flex items-center justify-between gap-4">
+        <button id="btn-prev" class="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 font-bold text-xs shadow-2xs transition flex items-center gap-2">
             <i class="fa-solid fa-arrow-left"></i> Previous
         </button>
 
-        <button id="btn-clear" class="px-4 py-2 rounded-xl text-slate-400 hover:text-rose-400 text-xs font-semibold transition">
+        <button id="btn-clear" class="px-4 py-2 rounded-xl text-slate-500 hover:text-rose-600 text-xs font-semibold transition">
             <i class="fa-solid fa-rotate-left mr-1"></i> Clear Answer
         </button>
 
         <div class="flex items-center gap-3">
-            <button id="btn-next" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
+            <button id="btn-next" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition flex items-center gap-2">
                 <span>Next</span> <i class="fa-solid fa-arrow-right"></i>
             </button>
-            <button id="btn-submit" class="hidden px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition flex items-center gap-2">
+            <button id="btn-submit" class="hidden px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition flex items-center gap-2">
                 <i class="fa-solid fa-check"></i> <span>Finish & Submit</span>
             </button>
         </div>
@@ -346,9 +346,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update Nav pills styling
         navPills.forEach((pill, idx) => {
-            pill.classList.remove('ring-2', 'ring-indigo-500/40', 'bg-indigo-600', 'text-white');
+            pill.classList.remove('ring-2', 'ring-indigo-500/30', 'bg-indigo-600', 'text-white', 'border-indigo-500');
             if (idx === index) {
-                pill.classList.add('ring-2', 'ring-indigo-500/40', 'bg-indigo-600', 'text-white');
+                pill.classList.add('ring-2', 'ring-indigo-500/30', 'bg-indigo-600', 'text-white', 'border-indigo-500');
             }
         });
 
@@ -384,9 +384,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const hasAnswer = ans !== undefined && ans !== "" && ans !== null && (Array.isArray(ans) ? ans.length > 0 : true);
         if (hasAnswer) {
-            pill.classList.add('border-emerald-500', 'text-emerald-400');
+            pill.classList.add('border-emerald-500', 'text-emerald-700', 'bg-emerald-50');
         } else {
-            pill.classList.remove('border-emerald-500', 'text-emerald-400');
+            pill.classList.remove('border-emerald-500', 'text-emerald-700', 'bg-emerald-50');
         }
     }
 

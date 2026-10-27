@@ -1,0 +1,895 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Analytics & Video Hub - PyMaster{% endblock %}
+
+{% block extra_css %}
+<!-- Chart.js 4 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .glass-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+    }
+    .glass-card:hover {
+        border-color: #bfdbfe;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f8fafc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Top Admin Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+        <div>
+            <div class="flex items-center gap-2.5">
+                <span class="px-2.5 py-1 text-xs font-bold uppercase tracking-wider rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
+                    <i class="fa-solid fa-shield-halved mr-1 text-indigo-600"></i> Admin Console
+                </span>
+                <span class="text-xs text-slate-500 font-medium">Live Analytics & Content Management</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2 tracking-tight font-heading">
+                Website Analytics & Video Tutorial Hub
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">
+                Monitor user engagement, page view trends, and publish video lessons for learners.
+            </p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="flex items-center flex-wrap gap-3">
+            <button onclick="document.getElementById('uploadVideoModal').classList.remove('hidden')" 
+                    class="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 rounded-xl shadow-md shadow-brand-500/20 flex items-center gap-2 transition transform active:scale-95">
+                <i class="fa-solid fa-cloud-arrow-up text-base"></i>
+                <span>Upload Tutorial Video</span>
+            </button>
+
+            <a href="{% url 'video_tutorial_list' %}" 
+               target="_blank"
+               class="px-4 py-2 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 hover:text-slate-900 rounded-xl border border-slate-200 shadow-xs flex items-center gap-2 transition">
+                <i class="fa-solid fa-play text-emerald-600"></i>
+                <span>View Video Gallery</span>
+            </a>
+
+            <a href="/admin/" 
+               class="px-4 py-2 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 hover:text-slate-900 rounded-xl border border-slate-200 shadow-xs flex items-center gap-2 transition">
+                <i class="fa-solid fa-sliders text-amber-600"></i>
+                <span>Django Admin</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI Metric Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        
+        <!-- Total Users -->
+        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Website Users</p>
+                    <p class="text-3xl font-extrabold text-white mt-1">{{ total_users_count }}</p>
+                    <div class="flex items-center gap-2 text-xs text-slate-400 mt-2">
+                        <span class="text-emerald-400 font-medium"><i class="fa-solid fa-user-graduate mr-1"></i>{{ active_learners_count }} Learners</span>
+                        <span>•</span>
+                        <span class="text-indigo-400 font-medium"><i class="fa-solid fa-user-shield mr-1"></i>{{ staff_count }} Staff</span>
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+            </div>
+            <div class="absolute -bottom-6 -right-6 w-20 h-20 bg-blue-500/5 rounded-full blur-xl pointer-events-none"></div>
+        </div>
+
+        <!-- Total Page Views -->
+        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Page Views</p>
+                    <p class="text-3xl font-extrabold text-white mt-1">{{ total_page_views }}</p>
+                    <div class="flex items-center gap-2 text-xs text-slate-400 mt-2">
+                        <span class="text-emerald-400 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-trend-up"></i> +{{ today_page_views }} today
+                        </span>
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+            </div>
+            <div class="absolute -bottom-6 -right-6 w-20 h-20 bg-emerald-500/5 rounded-full blur-xl pointer-events-none"></div>
+        </div>
+
+        <!-- Video Tutorials & Views -->
+        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Video Tutorials</p>
+                    <p class="text-3xl font-extrabold text-white mt-1">{{ total_videos_count }}</p>
+                    <div class="flex items-center gap-2 text-xs text-slate-400 mt-2">
+                        <span class="text-purple-400 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-eye"></i> {{ total_video_views }} Video Views
+                        </span>
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-video"></i>
+                </div>
+            </div>
+            <div class="absolute -bottom-6 -right-6 w-20 h-20 bg-purple-500/5 rounded-full blur-xl pointer-events-none"></div>
+        </div>
+
+        <!-- Learning Activity -->
+        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Exercises Solved</p>
+                    <p class="text-3xl font-extrabold text-white mt-1">{{ total_exercises_solved }}</p>
+                    <div class="flex items-center gap-2 text-xs text-slate-400 mt-2">
+                        <span class="text-amber-400 font-semibold"><i class="fa-solid fa-book-open-reader mr-1"></i>{{ total_tutorials_completed }} Lessons Done</span>
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-fire"></i>
+                </div>
+            </div>
+            <div class="absolute -bottom-6 -right-6 w-20 h-20 bg-amber-500/5 rounded-full blur-xl pointer-events-none"></div>
+        </div>
+
+    </div>
+
+    <!-- Interactive Analytics Graphs Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Line Chart: Page Views Over Time (2 cols) -->
+        <div class="lg:col-span-2 glass-card rounded-2xl p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-chart-area text-brand-400"></i>
+                        Website Visitor Traffic (Last 14 Days)
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Daily page hits and unique guest visits across all pages</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 text-xs text-slate-300 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">
+                        <span class="w-2.5 h-2.5 rounded-full bg-brand-500 inline-block"></span> Page Views
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-xs text-slate-300 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span> Unique Visitors
+                    </span>
+                </div>
+            </div>
+            <div class="relative h-72 w-full">
+                <canvas id="pageViewsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Bar Chart: New User Registrations (1 col) -->
+        <div class="glass-card rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus text-emerald-400"></i>
+                        User Growth
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">New signups per day</p>
+                </div>
+                <span class="px-2 py-0.5 text-xs font-semibold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    Last 14d
+                </span>
+            </div>
+            <div class="relative h-72 w-full">
+                <canvas id="userGrowthChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Secondary Graphs: Top Visited Pages & Video Engagement -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Horizontal Bar Chart: Most Popular Pages -->
+        <div class="glass-card rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-fire-flame-curved text-amber-400"></i>
+                        Top Visited Pages & Topics
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Most frequented URLs by learners</p>
+                </div>
+            </div>
+            <div class="relative h-64 w-full">
+                <canvas id="topPagesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Video Views Breakdown -->
+        <div class="glass-card rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-circle-play text-purple-400"></i>
+                        Video Views by Category
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Learner engagement across tutorial modules</p>
+                </div>
+            </div>
+            <div class="relative h-64 w-full">
+                <canvas id="videoCategoriesChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Video Tutorials Management Hub -->
+    <div class="glass-card rounded-2xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+            <div>
+                <h2 class="text-xl font-bold text-white flex items-center gap-2.5">
+                    <i class="fa-solid fa-clapperboard text-brand-400"></i>
+                    Uploaded Video Tutorials Management
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">
+                    Upload new video tutorials with file upload, title, description, and thumbnail, or manage existing ones.
+                </p>
+            </div>
+            <button onclick="document.getElementById('uploadVideoModal').classList.remove('hidden')" 
+                    class="px-4 py-2 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-500 rounded-xl shadow-md flex items-center gap-2 transition self-start sm:self-auto">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add Video Tutorial</span>
+            </button>
+        </div>
+
+        <!-- Videos Table / Grid -->
+        {% if video_tutorials %}
+            <div class="overflow-x-auto mt-4 custom-scrollbar">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-800 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                            <th class="py-3 px-4">Preview</th>
+                            <th class="py-3 px-4">Title & Description</th>
+                            <th class="py-3 px-4">Category</th>
+                            <th class="py-3 px-4">Media Source</th>
+                            <th class="py-3 px-4">Duration</th>
+                            <th class="py-3 px-4">Views</th>
+                            <th class="py-3 px-4">Status</th>
+                            <th class="py-3 px-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800 text-slate-300">
+                        {% for video in video_tutorials %}
+                        <tr class="hover:bg-slate-800/40 transition">
+                            <!-- Thumbnail / Preview -->
+                            <td class="py-3 px-4">
+                                <div class="w-20 h-12 rounded-lg bg-slate-800 overflow-hidden relative border border-slate-700 flex items-center justify-center group cursor-pointer"
+                                     onclick="previewVideo('{{ video.title|escapejs }}', '{{ video.video_file_url }}', '{{ video.embed_url|default:'' }}')">
+                                    {% if video.thumbnail %}
+                                        <img src="{{ video.thumbnail_url }}" alt="{{ video.title }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                        <div class="w-full h-full bg-gradient-to-tr from-slate-800 to-indigo-950 flex items-center justify-center text-slate-500">
+                                            <i class="fa-solid fa-film"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                                        <i class="fa-solid fa-play text-white text-xs"></i>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Title & Description -->
+                            <td class="py-3 px-4 max-w-xs">
+                                <a href="{% url 'video_tutorial_detail' video.slug %}" target="_blank" class="font-bold text-white hover:text-brand-400 transition block truncate">
+                                    {{ video.title }}
+                                </a>
+                                <p class="text-xs text-slate-400 line-clamp-1 mt-0.5">{{ video.description }}</p>
+                            </td>
+
+                            <!-- Category -->
+                            <td class="py-3 px-4 whitespace-nowrap">
+                                {% if video.category %}
+                                    <span class="px-2 py-0.5 text-xs rounded-full bg-slate-800 text-indigo-300 border border-slate-700">
+                                        {{ video.category.name }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-xs text-slate-500">General</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Media Source -->
+                            <td class="py-3 px-4 whitespace-nowrap">
+                                {% if video.video_file %}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                        <i class="fa-solid fa-file-video"></i> Direct Upload
+                                    </span>
+                                {% elif video.video_url %}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                        <i class="fa-solid fa-globe"></i> External Link
+                                    </span>
+                                {% else %}
+                                    <span class="text-xs text-red-400">Missing Video</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Duration -->
+                            <td class="py-3 px-4 whitespace-nowrap text-xs text-slate-400">
+                                <i class="fa-regular fa-clock mr-1"></i>{{ video.duration_mins }} mins
+                            </td>
+
+                            <!-- Views -->
+                            <td class="py-3 px-4 whitespace-nowrap text-xs font-semibold text-white">
+                                <i class="fa-solid fa-eye text-slate-400 mr-1"></i>{{ video.views_count }}
+                            </td>
+
+                            <!-- Status -->
+                            <td class="py-3 px-4 whitespace-nowrap">
+                                {% if video.is_published %}
+                                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                        Published
+                                    </span>
+                                {% else %}
+                                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-slate-700 text-slate-400">
+                                        Draft
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="py-3 px-4 whitespace-nowrap text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <button onclick="previewVideo('{{ video.title|escapejs }}', '{{ video.video_file_url }}', '{{ video.embed_url|default:'' }}')" 
+                                            class="p-1.5 text-slate-400 hover:text-emerald-400 hover:bg-slate-700/50 rounded-lg transition" title="Preview Video">
+                                        <i class="fa-solid fa-play"></i>
+                                    </button>
+
+                                    <a href="{% url 'video_tutorial_detail' video.slug %}" target="_blank"
+                                       class="p-1.5 text-slate-400 hover:text-brand-400 hover:bg-slate-700/50 rounded-lg transition" title="Watch Public Page">
+                                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                    </a>
+
+                                    <form method="POST" action="{% url 'admin_delete_video' video.pk %}" onsubmit="return confirm('Are you sure you want to delete this video tutorial?');" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-700/50 rounded-lg transition" title="Delete Video">
+                                            <i class="fa-regular fa-trash-can"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-12 border border-dashed border-slate-800 rounded-xl mt-4">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-2xl mb-3">
+                    <i class="fa-solid fa-video"></i>
+                </div>
+                <h3 class="text-base font-bold text-white">No Video Tutorials Uploaded Yet</h3>
+                <p class="text-xs text-slate-400 max-w-md mx-auto mt-1 mb-4">
+                    Upload your first Python video tutorial with title, description, and video file to engage learners!
+                </p>
+                <button onclick="document.getElementById('uploadVideoModal').classList.remove('hidden')" 
+                        class="px-4 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-500 rounded-xl transition shadow">
+                    <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> Upload First Video
+                </button>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Users & Traffic Dual Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Registered Website Users Table -->
+        <div class="glass-card rounded-2xl p-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-users text-blue-400"></i>
+                        Recent Registered Users
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Learners and administrators</p>
+                </div>
+                <a href="/admin/auth/user/" target="_blank" class="text-xs text-brand-400 hover:underline">
+                    Manage All ({{ total_users_count }}) &rarr;
+                </a>
+            </div>
+
+            <div class="overflow-y-auto max-h-96 mt-4 custom-scrollbar">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="text-xs text-slate-400 border-b border-slate-800/80">
+                            <th class="py-2.5 px-3">User</th>
+                            <th class="py-2.5 px-3">Joined</th>
+                            <th class="py-2.5 px-3">Streak</th>
+                            <th class="py-2.5 px-3">XP</th>
+                            <th class="py-2.5 px-3 text-right">Role</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60 text-slate-300 text-xs">
+                        {% for u in recent_users %}
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="py-2.5 px-3 font-semibold text-white flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold uppercase">
+                                    {{ u.username|slice:":1" }}
+                                </div>
+                                <div>
+                                    <span class="block text-white">{{ u.username }}</span>
+                                    <span class="block text-slate-500 text-[10px]">{{ u.email|default:'no email' }}</span>
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-3 text-slate-400 whitespace-nowrap">{{ u.date_joined|date:"M d, Y" }}</td>
+                            <td class="py-2.5 px-3 whitespace-nowrap font-medium text-amber-400">
+                                <i class="fa-solid fa-fire text-amber-500 mr-1"></i>{{ u.profile.current_streak|default:0 }}d
+                            </td>
+                            <td class="py-2.5 px-3 whitespace-nowrap font-medium text-emerald-400">
+                                {{ u.profile.total_xp|default:0 }} XP
+                            </td>
+                            <td class="py-2.5 px-3 text-right whitespace-nowrap">
+                                {% if u.is_superuser %}
+                                    <span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-semibold">Admin</span>
+                                {% elif u.is_staff %}
+                                    <span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-semibold">Staff</span>
+                                {% else %}
+                                    <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">Student</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Live Page Views Feed -->
+        <div class="glass-card rounded-2xl p-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-satellite-dish text-emerald-400 animate-pulse"></i>
+                        Live Page View Stream
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Real-time visitor activity recorded by middleware</p>
+                </div>
+                <span class="px-2 py-0.5 text-xs rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
+                    Live Feed
+                </span>
+            </div>
+
+            <div class="overflow-y-auto max-h-96 mt-4 custom-scrollbar">
+                {% if recent_page_views %}
+                <ul class="divide-y divide-slate-800/60 text-xs">
+                    {% for pv in recent_page_views %}
+                    <li class="py-2.5 px-2 hover:bg-slate-800/30 rounded-lg transition flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <div class="truncate">
+                                <span class="font-mono text-slate-200 block truncate">{{ pv.path }}</span>
+                                <span class="text-slate-500 text-[11px]">
+                                    By: 
+                                    {% if pv.user %}
+                                        <span class="text-indigo-400 font-medium">{{ pv.user.username }}</span>
+                                    {% else %}
+                                        <span class="text-slate-400">Guest Visitor</span>
+                                    {% endif %}
+                                    {% if pv.ip_address %}• IP: {{ pv.ip_address }}{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <span class="text-slate-500 whitespace-nowrap text-[11px]">
+                            {{ pv.timestamp|timesince }} ago
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-xs text-slate-500 text-center py-8">No page views recorded yet. Browse the platform to see live traffic!</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Upload Video Tutorial Modal -->
+<div id="uploadVideoModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-200 mb-6">
+            <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900 font-heading">Upload Tutorial Video</h3>
+                    <p class="text-xs text-slate-500">Add a high-quality video lesson for PyMaster learners</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('uploadVideoModal').classList.add('hidden')" 
+                    class="text-slate-400 hover:text-slate-700 p-2 rounded-lg hover:bg-slate-100 transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <form method="POST" action="{% url 'admin_upload_video' %}" enctype="multipart/form-data" class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Title -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Tutorial Title <span class="text-rose-500">*</span>
+                </label>
+                <input type="text" name="title" required placeholder="e.g. Master Python Dictionaries & Methods in 15 Minutes"
+                       class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-none focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+            </div>
+
+            <!-- Category & Duration -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Category / Topic
+                    </label>
+                    <select name="category" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-none focus:bg-white focus:border-brand-500">
+                        <option value="">-- General Python --</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.get_level_display }} &bull; {{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Duration (Minutes)
+                    </label>
+                    <input type="number" name="duration_mins" value="10" min="1" max="600"
+                           class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-none focus:bg-white focus:border-brand-500">
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Description & Overview <span class="text-rose-500">*</span>
+                </label>
+                <textarea name="description" rows="3" required placeholder="Explain what students will learn in this video tutorial..."
+                          class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:outline-none focus:bg-white focus:border-brand-500"></textarea>
+            </div>
+
+            <!-- Video File Upload (Requested Requirement) -->
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-800 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-file-video text-brand-600 mr-1.5"></i> Upload Video File (MP4, WebM, OGG, MOV)
+                    </label>
+                    <p class="text-xs text-slate-500 mb-2">Upload your tutorial video directly from your device</p>
+                    <input type="file" name="video_file" accept="video/mp4,video/webm,video/ogg,video/quicktime"
+                           class="w-full text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-600 file:text-white hover:file:bg-brand-500 cursor-pointer">
+                </div>
+
+                <div class="relative flex py-1 items-center">
+                    <div class="flex-grow border-t border-slate-200"></div>
+                    <span class="flex-shrink mx-3 text-xs text-slate-400 font-semibold uppercase">Or External Video Link</span>
+                    <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">
+                        Video URL (YouTube, Vimeo, or Direct Stream)
+                    </label>
+                    <input type="url" name="video_url" placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..."
+                           class="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-brand-500">
+                </div>
+            </div>
+
+            <!-- Thumbnail Image Upload -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Cover Thumbnail Image (Optional)
+                </label>
+                <input type="file" name="thumbnail" accept="image/*"
+                       class="w-full text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300 cursor-pointer">
+            </div>
+
+            <!-- Options: Order & Publish -->
+            <div class="flex items-center justify-between pt-2">
+                <label class="inline-flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="is_published" checked class="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 border-slate-300">
+                    <span class="text-xs font-semibold text-slate-700">Publish immediately for learners</span>
+                </label>
+
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-slate-500">Display Order:</span>
+                    <input type="number" name="order" value="1" min="1" class="w-16 px-2 py-1 text-xs rounded-lg bg-slate-50 border border-slate-200 text-slate-900">
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+                <button type="button" onclick="document.getElementById('uploadVideoModal').classList.add('hidden')" 
+                        class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 rounded-xl shadow-md transition flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Upload & Publish Video</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Video Player Preview Modal -->
+<div id="videoPreviewModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+            <h3 id="previewModalTitle" class="text-base font-bold text-slate-900 font-heading truncate max-w-xl">Video Preview</h3>
+            <button onclick="closePreviewModal()" class="text-slate-400 hover:text-slate-700 p-2 rounded-lg hover:bg-slate-100 transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        <div id="previewVideoContainer" class="aspect-video w-full rounded-xl overflow-hidden bg-black flex items-center justify-center">
+            <!-- Dynamic Video Element -->
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Visualization Scripts -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Parse JSON datasets from Django context
+        const dates = {{ chart_dates_json|safe }};
+        const pageViews = {{ chart_page_views_json|safe }};
+        const uniqueVisitors = {{ chart_unique_visitors_json|safe }};
+        const userSignups = {{ chart_user_signups_json|safe }};
+        const topPagesLabels = {{ top_pages_labels_json|safe }};
+        const topPagesCounts = {{ top_pages_counts_json|safe }};
+        const catVideoLabels = {{ cat_video_labels_json|safe }};
+        const catVideoViews = {{ cat_video_views_json|safe }};
+
+        // Shared Chart.js Light Palette Styling
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.font.family = "'Inter', 'Inter Fallback', system-ui, sans-serif";
+
+        // 1. Page Views & Unique Visitors Line Chart
+        const ctxViews = document.getElementById('pageViewsChart').getContext('2d');
+        const gradientViews = ctxViews.createLinearGradient(0, 0, 0, 300);
+        gradientViews.addColorStop(0, 'rgba(37, 99, 235, 0.2)');
+        gradientViews.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+
+        const gradientUnique = ctxViews.createLinearGradient(0, 0, 0, 300);
+        gradientUnique.addColorStop(0, 'rgba(5, 150, 105, 0.2)');
+        gradientUnique.addColorStop(1, 'rgba(5, 150, 105, 0.0)');
+
+        new Chart(ctxViews, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: 'Total Page Views',
+                        data: pageViews,
+                        borderColor: '#2563eb',
+                        backgroundColor: gradientViews,
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#2563eb',
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                    },
+                    {
+                        label: 'Unique Visitors',
+                        data: uniqueVisitors,
+                        borderColor: '#059669',
+                        backgroundColor: gradientUnique,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#059669',
+                        pointRadius: 2.5,
+                        pointHoverRadius: 5,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleColor: '#f8fafc',
+                        bodyColor: '#e2e8f0',
+                        borderColor: '#cbd5e1',
+                        borderWidth: 1,
+                        padding: 10,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(0, 0, 0, 0.04)' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.04)' },
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+
+        // 2. User Growth Bar Chart
+        const ctxUsers = document.getElementById('userGrowthChart').getContext('2d');
+        new Chart(ctxUsers, {
+            type: 'bar',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'New Registrations',
+                    data: userSignups,
+                    backgroundColor: 'rgba(5, 150, 105, 0.85)',
+                    hoverBackgroundColor: '#059669',
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleColor: '#ffffff',
+                        bodyColor: '#e2e8f0',
+                        borderColor: '#cbd5e1',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.04)' },
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+
+        // 3. Top Most Visited Pages Horizontal Bar Chart
+        const ctxTopPages = document.getElementById('topPagesChart').getContext('2d');
+        new Chart(ctxTopPages, {
+            type: 'bar',
+            data: {
+                labels: topPagesLabels.length ? topPagesLabels : ['No views yet'],
+                datasets: [{
+                    label: 'Views Count',
+                    data: topPagesCounts.length ? topPagesCounts : [0],
+                    backgroundColor: 'rgba(217, 119, 6, 0.85)',
+                    hoverBackgroundColor: '#d97706',
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleColor: '#ffffff',
+                        bodyColor: '#e2e8f0',
+                        borderColor: '#cbd5e1',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.04)' },
+                        ticks: { stepSize: 1 }
+                    },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 4. Video Categories Engagement Chart
+        const ctxVideoCat = document.getElementById('videoCategoriesChart').getContext('2d');
+        new Chart(ctxVideoCat, {
+            type: 'bar',
+            data: {
+                labels: catVideoLabels.length ? catVideoLabels : ['Python Tutorials'],
+                datasets: [{
+                    label: 'Total Video Views',
+                    data: catVideoViews.length ? catVideoViews : [0],
+                    backgroundColor: 'rgba(124, 58, 237, 0.85)',
+                    hoverBackgroundColor: '#7c3aed',
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleColor: '#ffffff',
+                        bodyColor: '#e2e8f0',
+                        borderColor: '#cbd5e1',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.04)' },
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+    });
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+    });
+
+    // Video Preview Modal Functions
+    function previewVideo(title, fileUrl, embedUrl) {
+        const modal = document.getElementById('videoPreviewModal');
+        const modalTitle = document.getElementById('previewModalTitle');
+        const container = document.getElementById('previewVideoContainer');
+
+        modalTitle.textContent = title;
+        container.innerHTML = '';
+
+        if (fileUrl) {
+            container.innerHTML = `
+                <video controls autoplay class="w-full h-full rounded-xl">
+                    <source src="${fileUrl}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            `;
+        } else if (embedUrl) {
+            container.innerHTML = `
+                <iframe src="${embedUrl}?autoplay=1" class="w-full h-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            `;
+        } else {
+            container.innerHTML = `<p class="text-sm text-slate-400">No video stream available to preview.</p>`;
+        }
+
+        modal.classList.remove('hidden');
+    }
+
+    function closePreviewModal() {
+        const modal = document.getElementById('videoPreviewModal');
+        const container = document.getElementById('previewVideoContainer');
+        container.innerHTML = '';
+        modal.classList.add('hidden');
+    }
+</script>
+{% endblock %}

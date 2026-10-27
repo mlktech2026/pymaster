@@ -4,7 +4,7 @@ from quizzes.models import Quiz
 
 def global_context(request):
     """Provides site-wide context variables to all templates."""
-    theme = 'dark'
+    theme = 'light'
     user_streak = 0
     user_xp = 0
     if request.user.is_authenticated and hasattr(request.user, 'profile'):
