@@ -202,7 +202,56 @@ button[type="submit"] * {
     color: #ffffff !important;
 }
 
-/* Form Controls in Light Mode */
+/* Form Controls & Form Input Alignment in Light Mode */
+.form-input,
+input.form-input,
+select.form-input,
+textarea.form-input {
+    width: 100% !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    padding: 0.65rem 0.95rem;
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+    border-radius: 0.75rem !important;
+    border: 1px solid #cbd5e1 !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    transition: all 0.2s ease-in-out !important;
+    outline: none !important;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+}
+
+.form-input:focus,
+input.form-input:focus,
+select.form-input:focus,
+textarea.form-input:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+}
+
+/* Icon Padding Helpers for inputs with embedded icons */
+.form-input-with-icon-left,
+input.form-input-with-icon-left {
+    padding-left: 2.6rem !important;
+}
+
+.form-input-with-icon-right,
+input.form-input-with-icon-right {
+    padding-right: 2.6rem !important;
+}
+
+.form-input.has-error,
+.form-input-error {
+    border-color: #f43f5e !important;
+}
+
+.form-input.has-error:focus,
+.form-input-error:focus {
+    border-color: #f43f5e !important;
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15) !important;
+}
+
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -213,6 +262,7 @@ textarea {
     background-color: #ffffff !important;
     border: 1px solid #cbd5e1 !important;
     color: #0f172a !important;
+    box-sizing: border-box;
 }
 
 input::placeholder,
